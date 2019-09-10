@@ -1813,7 +1813,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_ButReadDeadlineActionPerformed
+	}
+	// GEN-LAST:event_ButReadDeadlineActionPerformed
 	private void butWriteTCPSettingActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWriteTCPSettingActionPerformed
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
@@ -2920,7 +2921,6 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 	}
 	/**
 	 * 记录事件的描述到StringBuilder中
-	 * @param strBuf
 	 */
 	private void logTransaction(FC8800WatchTransaction WatchTransaction, StringBuilder strBuf, String[] sTransactionList) {
 		AbstractTransaction Transaction = WatchTransaction.EventData;
@@ -3058,13 +3058,14 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 	}
 	private void AddLog(String log) {
 		synchronized (strLog) {
-			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");// 设置日期格式
+			// 设置日期格式
+			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 			strLog.append(df.format(new Date()));
 			strLog.append(":");
 			strLog.append(log);
 			strLog.append("\n");
 			String txt = strLog.toString();
-			// System.out.println("fcardiodemo.frmMain.AddLog() + " + txt);
+			System.out.println("fcardiodemo.frmMain.AddLog() + " + txt);
 			txtLog.setText(txt);
 			if (strLog.length() > 50000) {
 				strLog.delete(0, 30000);

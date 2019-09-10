@@ -311,7 +311,8 @@
 			<groupId>beauty-eye</groupId>
 			<artifactId>beauty-eye</artifactId>
 			<scope>system</scope>
-			<!--<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/constant-utils-0.0.1-20190824.15.jar</systemPath>-->
+			<version>2011</version>
+			<!--<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/constant-fcardutils-0.0.1-20190824.15.jar</systemPath>-->
 			<systemPath>${project.basedir}/src/main/resources/lib/beautyeye_lnf.jar</systemPath>
 		</dependency>
 	</dependencies>
