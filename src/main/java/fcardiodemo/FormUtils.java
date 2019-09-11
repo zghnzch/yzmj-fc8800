@@ -7,7 +7,6 @@ import Net.PC15.FC8800.Command.DateTime.WriteTimeDefine;
 import Net.PC15.FC8800.Command.Door.*;
 import Net.PC15.FC8800.Command.System.*;
 import Net.PC15.FC8800.Command.Transaction.*;
-import fcardiodemo.FormMain;
 import fcardutils.StringUtil;
 import org.apache.log4j.Logger;
 
@@ -22,12 +21,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @createDate 201909102004
  * @package fcardutils
  */
-public class FormUtils {
+class FormUtils {
 	private final static Object LOG_LOCK = new Object();
 	private final static String NEXT_LINE = "\n";
-	public static ConcurrentHashMap<String, String> CommandName = new ConcurrentHashMap<>();
+	static ConcurrentHashMap<String, String> CommandName = new ConcurrentHashMap<>();
 	// 在txt窗口中添加日志
-	public static void addTxtLog(String log) {
+	static void addTxtLog(String log) {
 		synchronized (LOG_LOCK) {
 			Logger.getRootLogger().info(log);
 			log = StringUtil.getNowTimeFortest() + ":" + log + NEXT_LINE + FormMain.txtLog.getText();
@@ -35,7 +34,7 @@ public class FormUtils {
 		}
 	}
 	// 初始化组件
-	public static void iniCommandName() {
+	static void iniCommandName() {
 		if (CommandName.size() > 0) {
 			return;
 		}
@@ -168,5 +167,146 @@ public class FormUtils {
 		CommandName.put(ReadTransactionDatabase.class.getName(), "读取新记录");
 		CommandName.put(Net.PC15.FC89H.Command.Transaction.ReadTransactionDatabaseByIndex.class.getName(), "读取记录");
 		CommandName.put(Net.PC15.FC89H.Command.Transaction.ReadTransactionDatabase.class.getName(), "读取新记录");
+	}
+	/**
+	 * 初始化监控消息处理的相关操作
+	 */
+	static void iniWatchEvent() {
+		FormMain.mWatchTypeNameList = new String[]{"", "读卡信息", "出门开关信息", "门磁信息", "远程开门信息", "报警信息", "系统信息", "连接保活消息", "连接确认信息"};
+		FormMain.mCardTransactionList = new String[256];
+		FormMain.mButtonTransactionList = new String[256];
+		FormMain.mDoorSensorTransactionList = new String[256];
+		FormMain.mSoftwareTransactionList = new String[256];
+		FormMain.mAlarmTransactionList = new String[256];
+		FormMain.mSystemTransactionList = new String[256];
+		FormMain.mCardTransactionList[1] = "合法开门";
+		// ------------卡号为密码
+		FormMain.mCardTransactionList[2] = "密码开门";
+		FormMain.mCardTransactionList[3] = "卡加密码";
+		FormMain.mCardTransactionList[4] = "手动输入卡加密码";
+		FormMain.mCardTransactionList[5] = "首卡开门";
+		// --- 常开工作方式中，刷卡进入常开状态
+		FormMain.mCardTransactionList[6] = "门常开";
+		// -- 多卡验证组合完毕后触发
+		FormMain.mCardTransactionList[7] = "多卡开门";
+		FormMain.mCardTransactionList[8] = "重复读卡";
+		FormMain.mCardTransactionList[9] = "有效期过期";
+		FormMain.mCardTransactionList[10] = "开门时段过期";
+		FormMain.mCardTransactionList[11] = "节假日无效";
+		FormMain.mCardTransactionList[12] = "未注册卡";
+		// -- 不开门
+		FormMain.mCardTransactionList[13] = "巡更卡";
+		FormMain.mCardTransactionList[14] = "探测锁定";
+		FormMain.mCardTransactionList[15] = "无有效次数";
+		FormMain.mCardTransactionList[16] = "防潜回";
+		// ------------卡号为错误密码
+		FormMain.mCardTransactionList[17] = "密码错误";
+		// ----卡号为卡号。
+		FormMain.mCardTransactionList[18] = "密码加卡模式密码错误";
+		FormMain.mCardTransactionList[19] = "锁定时(读卡)或(读卡加密码)开门";
+		FormMain.mCardTransactionList[20] = "锁定时(密码开门)";
+		FormMain.mCardTransactionList[21] = "首卡未开门";
+		FormMain.mCardTransactionList[22] = "挂失卡";
+		FormMain.mCardTransactionList[23] = "黑名单卡";
+		FormMain.mCardTransactionList[24] = "门内上限已满，禁止入门。";
+		FormMain.mCardTransactionList[25] = "开启防盗布防状态(设置卡)";
+		FormMain.mCardTransactionList[26] = "撤销防盗布防状态(设置卡)";
+		FormMain.mCardTransactionList[27] = "开启防盗布防状态(密码)";
+		FormMain.mCardTransactionList[28] = "撤销防盗布防状态(密码)";
+		FormMain.mCardTransactionList[29] = "互锁时(读卡)或(读卡加密码)开门";
+		FormMain.mCardTransactionList[30] = "互锁时(密码开门)";
+		FormMain.mCardTransactionList[31] = "全卡开门";
+		FormMain.mCardTransactionList[32] = "多卡开门--等待下张卡";
+		FormMain.mCardTransactionList[33] = "多卡开门--组合错误";
+		FormMain.mCardTransactionList[34] = "非首卡时段刷卡无效";
+		FormMain.mCardTransactionList[35] = "非首卡时段密码无效";
+		// -- 【开门认证方式】验证模式中禁用了刷卡开门时
+		FormMain.mCardTransactionList[36] = "禁止刷卡开门";
+		// -- 【开门认证方式】验证模式中禁用了密码开门时
+		FormMain.mCardTransactionList[37] = "禁止密码开门";
+		// （门内外刷卡验证）
+		FormMain.mCardTransactionList[38] = "门内已刷卡，等待门外刷卡。";
+		// （门内外刷卡验证）
+		FormMain.mCardTransactionList[39] = "门外已刷卡，等待门内刷卡。";
+		// (在开启管理卡功能后提示)(电梯板)
+		FormMain.mCardTransactionList[40] = "请刷管理卡";
+		// (在开启管理卡功能后提示)(电梯板)
+		FormMain.mCardTransactionList[41] = "请刷普通卡";
+		FormMain.mCardTransactionList[42] = "首卡未读卡时禁止密码开门。";
+		FormMain.mCardTransactionList[43] = "控制器已过期_刷卡";
+		FormMain.mCardTransactionList[44] = "控制器已过期_密码";
+		FormMain.mCardTransactionList[45] = "合法卡开门—有效期即将过期";
+		FormMain.mCardTransactionList[46] = "拒绝开门--区域反潜回失去主机连接。";
+		FormMain.mCardTransactionList[47] = "拒绝开门--区域互锁，失去主机连接";
+		FormMain.mCardTransactionList[48] = "区域防潜回--拒绝开门";
+		FormMain.mCardTransactionList[49] = "区域互锁--有门未关好，拒绝开门";
+		FormMain.mButtonTransactionList[1] = "按钮开门";
+		FormMain.mButtonTransactionList[2] = "开门时段过期";
+		FormMain.mButtonTransactionList[3] = "锁定时按钮";
+		FormMain.mButtonTransactionList[4] = "控制器已过期";
+		FormMain.mButtonTransactionList[5] = "互锁时按钮(不开门)";
+		FormMain.mDoorSensorTransactionList[1] = "开门";
+		FormMain.mDoorSensorTransactionList[2] = "关门";
+		FormMain.mDoorSensorTransactionList[3] = "进入门磁报警状态";
+		FormMain.mDoorSensorTransactionList[4] = "退出门磁报警状态";
+		FormMain.mDoorSensorTransactionList[5] = "门未关好";
+		FormMain.mSoftwareTransactionList[1] = "软件开门";
+		FormMain.mSoftwareTransactionList[2] = "软件关门";
+		FormMain.mSoftwareTransactionList[3] = "软件常开";
+		FormMain.mSoftwareTransactionList[4] = "控制器自动进入常开";
+		FormMain.mSoftwareTransactionList[5] = "控制器自动关闭门";
+		FormMain.mSoftwareTransactionList[6] = "长按出门按钮常开";
+		FormMain.mSoftwareTransactionList[7] = "长按出门按钮常闭";
+		FormMain.mSoftwareTransactionList[8] = "软件锁定";
+		FormMain.mSoftwareTransactionList[9] = "软件解除锁定";
+		// --到时间自动锁定
+		FormMain.mSoftwareTransactionList[10] = "控制器定时锁定";
+		// --到时间自动解除锁定
+		FormMain.mSoftwareTransactionList[11] = "控制器定时解除锁定";
+		FormMain.mSoftwareTransactionList[12] = "报警--锁定";
+		FormMain.mSoftwareTransactionList[13] = "报警--解除锁定";
+		FormMain.mSoftwareTransactionList[14] = "互锁时远程开门";
+		FormMain.mAlarmTransactionList[1] = "门磁报警";
+		FormMain.mAlarmTransactionList[2] = "匪警报警";
+		FormMain.mAlarmTransactionList[3] = "消防报警";
+		FormMain.mAlarmTransactionList[4] = "非法卡刷报警";
+		FormMain.mAlarmTransactionList[5] = "胁迫报警";
+		FormMain.mAlarmTransactionList[6] = "消防报警(命令通知)";
+		FormMain.mAlarmTransactionList[7] = "烟雾报警";
+		FormMain.mAlarmTransactionList[8] = "防盗报警";
+		FormMain.mAlarmTransactionList[9] = "黑名单报警";
+		FormMain.mAlarmTransactionList[10] = "开门超时报警";
+		FormMain.mAlarmTransactionList[0x11] = "门磁报警撤销";
+		FormMain.mAlarmTransactionList[0x12] = "匪警报警撤销";
+		FormMain.mAlarmTransactionList[0x13] = "消防报警撤销";
+		FormMain.mAlarmTransactionList[0x14] = "非法卡刷报警撤销";
+		FormMain.mAlarmTransactionList[0x15] = "胁迫报警撤销";
+		FormMain.mAlarmTransactionList[0x17] = "撤销烟雾报警";
+		FormMain.mAlarmTransactionList[0x18] = "关闭防盗报警";
+		FormMain.mAlarmTransactionList[0x19] = "关闭黑名单报警";
+		FormMain.mAlarmTransactionList[0x1A] = "关闭开门超时报警";
+		FormMain.mAlarmTransactionList[0x21] = "门磁报警撤销(命令通知)";
+		FormMain.mAlarmTransactionList[0x22] = "匪警报警撤销(命令通知)";
+		FormMain.mAlarmTransactionList[0x23] = "消防报警撤销(命令通知)";
+		FormMain.mAlarmTransactionList[0x24] = "非法卡刷报警撤销(命令通知)";
+		FormMain.mAlarmTransactionList[0x25] = "胁迫报警撤销(命令通知)";
+		FormMain.mAlarmTransactionList[0x27] = "撤销烟雾报警(命令通知)";
+		FormMain.mAlarmTransactionList[0x28] = "关闭防盗报警(软件关闭)";
+		FormMain.mAlarmTransactionList[0x29] = "关闭黑名单报警(软件关闭)";
+		FormMain.mAlarmTransactionList[0x2A] = "关闭开门超时报警";
+		FormMain.mSystemTransactionList[1] = "系统加电";
+		FormMain.mSystemTransactionList[2] = "系统错误复位（看门狗）";
+		FormMain.mSystemTransactionList[3] = "设备格式化记录";
+		FormMain.mSystemTransactionList[4] = "系统高温记录，温度大于>75";
+		FormMain.mSystemTransactionList[5] = "系统UPS供电记录";
+		FormMain.mSystemTransactionList[6] = "温度传感器损坏，温度大于>100";
+		FormMain.mSystemTransactionList[7] = "电压过低，小于<09V";
+		FormMain.mSystemTransactionList[8] = "电压过高，大于>14V";
+		FormMain.mSystemTransactionList[9] = "读卡器接反。";
+		FormMain.mSystemTransactionList[10] = "读卡器线路未接好。";
+		FormMain.mSystemTransactionList[11] = "无法识别的读卡器";
+		FormMain.mSystemTransactionList[12] = "电压恢复正常，小于14V，大于9V";
+		FormMain.mSystemTransactionList[13] = "网线已断开";
+		FormMain.mSystemTransactionList[14] = "网线已插入";
 	}
 }
