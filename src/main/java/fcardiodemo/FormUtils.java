@@ -1,4 +1,4 @@
-package fcardutils;
+package fcardiodemo;
 import Net.PC15.FC8800.Command.Card.*;
 import Net.PC15.FC8800.Command.DateTime.ReadTime;
 import Net.PC15.FC8800.Command.DateTime.WriteTime;
@@ -8,6 +8,7 @@ import Net.PC15.FC8800.Command.Door.*;
 import Net.PC15.FC8800.Command.System.*;
 import Net.PC15.FC8800.Command.Transaction.*;
 import fcardiodemo.FormMain;
+import fcardutils.StringUtil;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +34,7 @@ public class FormUtils {
 			FormMain.txtLog.setText(log);
 		}
 	}
+	// 初始化组件
 	public static void iniCommandName() {
 		if (CommandName.size() > 0) {
 			return;
