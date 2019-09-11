@@ -26,7 +26,7 @@ public class BootstrapMain {
 					//					BeautyEyeLNFHelper.translucencyAtFrameInactive = false;
 					//					UIManager.put("RootPane.setupButtonVisible", true);
 					//					BeautyEyeLNFHelper.commonBackgroundColor.darker();
-					new frmMain().setVisible(true);
+					new FormMain().setVisible(true);
 				}
 				catch (Exception e) {
 					e.printStackTrace();

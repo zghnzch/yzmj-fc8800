@@ -24,8 +24,6 @@ import Net.PC15.FC8800.Command.Data.*;
 import Net.PC15.FC8800.Command.DateTime.ReadTime;
 import Net.PC15.FC8800.Command.DateTime.Result.ReadTime_Result;
 import Net.PC15.FC8800.Command.DateTime.WriteTime;
-import Net.PC15.FC8800.Command.DateTime.WriteTimeBroadcast;
-import Net.PC15.FC8800.Command.DateTime.WriteTimeDefine;
 import Net.PC15.FC8800.Command.Door.*;
 import Net.PC15.FC8800.Command.Door.Parameter.OpenDoor_Parameter;
 import Net.PC15.FC8800.Command.Door.Parameter.RemoteDoor_Parameter;
@@ -43,17 +41,16 @@ import Net.PC15.Util.ByteUtil;
 import Net.PC15.Util.StringUtil;
 import Net.PC15.Util.TimeUtil;
 import Net.PC15.Util.UInt32Util;
+import fcardutils.FormUtils;
 import io.netty.buffer.ByteBuf;
+import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DateFormat;
@@ -64,107 +61,191 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author 赖金杰
  */
-public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
+public class FormMain extends javax.swing.JFrame implements INConnectorEvent, ActionListener {
+	//region GUI组件定义
+	private javax.swing.JButton ButReadDeadline;
+	private javax.swing.JButton ButWriteDeadline;
+	private javax.swing.JLabel LblDate;
+	private javax.swing.JPanel PnlUDP;
+	private javax.swing.JRadioButton RadTCPClient;
+	private javax.swing.JRadioButton RadTCPServer;
+	private javax.swing.JRadioButton RadUDP;
+	private javax.swing.JTextField TxtCardExpiry;
+	private javax.swing.ButtonGroup bgConnectType;
+	private javax.swing.JButton butAddCardToList;
+	private javax.swing.JButton butAutoSearchDoor;
+	private javax.swing.JButton butBeginServer;
+	private javax.swing.JButton butBeginWatch;
+	private javax.swing.JButton butCardListAutoCreate;
+	private javax.swing.JButton butCardListClear;
+	private javax.swing.JButton butClearCardDataBase;
+	private javax.swing.JButton butClearTransactionDatabase;
+	private javax.swing.JButton butCloseAlarm;
+	private javax.swing.JButton butCloseDoor;
+	private javax.swing.JButton butCloseWatch;
+	private javax.swing.JButton butDeleteCard;
+	private javax.swing.JButton butDeleteCardByList;
+	private javax.swing.JButton butHoldDoor;
+	private javax.swing.JButton butLockDoor;
+	private javax.swing.JButton butOpenDoor;
+	private javax.swing.JButton butReadCardDataBase;
+	private javax.swing.JButton butReadCardDatabaseDetail;
+	private javax.swing.JButton butReadCardDetail;
+	private javax.swing.JButton butReadConnectPassword;
+	private javax.swing.JButton butReadSN;
+	private javax.swing.JButton butReadTCPSetting;
+	private javax.swing.JButton butReadTransactionDatabase;
+	private javax.swing.JButton butReadTransactionDatabaseByIndex;
+	private javax.swing.JButton butReadTransactionDatabaseDetail;
+	private javax.swing.JButton butReadVersion;
+	private javax.swing.JButton butResetConnectPassword;
+	private javax.swing.JButton butTransactionDatabaseEmpty;
+	private javax.swing.JButton butUnlockDoor;
+	private javax.swing.JButton butUploadCard;
+	private javax.swing.JButton butWriteCardListBySequence;
+	private javax.swing.JButton butWriteCardListBySort;
+	private javax.swing.JButton butWriteConnectPassword;
+	private javax.swing.JButton butWriteSN;
+	private javax.swing.JButton butWriteTCPSetting;
+	private javax.swing.JButton butWriteTransactionDatabaseReadIndex;
+	private javax.swing.JButton butWriteTransactionDatabaseWriteIndex;
+	private javax.swing.JCheckBox chkCardDoor1;
+	private javax.swing.JCheckBox chkCardDoor2;
+	private javax.swing.JCheckBox chkCardDoor3;
+	private javax.swing.JCheckBox chkCardDoor4;
+	private javax.swing.JCheckBox chkTransactionIsCircle;
+	private javax.swing.JComboBox<String> cmbCardDataBaseType;
+	private javax.swing.JComboBox<String> cmbCardStatus;
+	private javax.swing.JComboBox<String> cmbTransactionType;
+	private javax.swing.JButton jButton1;
+	private javax.swing.JButton jButton2;
+	private javax.swing.JComboBox<String> jComboBox1;
+	private javax.swing.JLabel jLabel1;
+	private javax.swing.JLabel jLabel10;
+	private javax.swing.JLabel jLabel11;
+	private javax.swing.JLabel jLabel12;
+	private javax.swing.JLabel jLabel13;
+	private javax.swing.JLabel jLabel14;
+	private javax.swing.JLabel jLabel15;
+	private javax.swing.JLabel jLabel16;
+	private javax.swing.JLabel jLabel17;
+	private javax.swing.JLabel jLabel18;
+	private javax.swing.JLabel jLabel19;
+	private javax.swing.JLabel jLabel2;
+	private javax.swing.JLabel jLabel20;
+	private javax.swing.JLabel jLabel21;
+	private javax.swing.JLabel jLabel22;
+	private javax.swing.JLabel jLabel23;
+	private javax.swing.JLabel jLabel24;
+	private javax.swing.JLabel jLabel25;
+	private javax.swing.JLabel jLabel3;
+	private javax.swing.JLabel jLabel4;
+	private javax.swing.JLabel jLabel5;
+	private javax.swing.JLabel jLabel6;
+	private javax.swing.JLabel jLabel7;
+	private javax.swing.JLabel jLabel8;
+	private javax.swing.JLabel jLabel9;
+	private javax.swing.JPanel jPanel1;
+	private javax.swing.JPanel jPanel2;
+	private javax.swing.JPanel jPanel3;
+	private javax.swing.JPanel jPanel4;
+	private javax.swing.JPanel jPanel5;
+	private javax.swing.JPanel jPanel6;
+	private javax.swing.JPanel jPanel8;
+	private javax.swing.JPanel jPanel9;
+	private javax.swing.JScrollPane jScrollPane1;
+	private javax.swing.JScrollPane jScrollPane2;
+	private javax.swing.JTabbedPane jTabSetting;
+	private javax.swing.JTextArea jTextArea1;
+	private javax.swing.JPanel jpConnectSetting;
+	private javax.swing.JScrollPane jpLog;
+	private javax.swing.JPanel jpSNDetail;
+	private javax.swing.JLabel lblCommandName;
+	private javax.swing.JLabel lblTime;
+	private javax.swing.JPanel pnlTCPClient;
+	private javax.swing.JPanel pnlTCPServer;
+	private javax.swing.JProgressBar prCommand;
+	private javax.swing.JTable tblCard;
+	private javax.swing.JTextField txtCardAutoCreateSzie;
+	private javax.swing.JTextField txtCardData;
+	private javax.swing.JTextField txtCardPassword;
+	private javax.swing.JTextField txtLocalPort;
+	public static javax.swing.JTextArea txtLog;
+	private javax.swing.JTextField txtOpenTimes;
+	private javax.swing.JTextField txtPassword;
+	private javax.swing.JTextField txtReadTransactionDatabaseByIndex;
+	private javax.swing.JTextField txtReadTransactionDatabaseByQuantity;
+	private javax.swing.JTextField txtReadTransactionDatabasePacketSize;
+	private javax.swing.JTextField txtReadTransactionDatabaseQuantity;
+	private javax.swing.JTextField txtSN;
+	private javax.swing.JTextField txtTCPServerIP;
+	private javax.swing.JTextField txtTCPServerPort;
+	private javax.swing.JTextField txtTransactionDatabaseReadIndex;
+	private javax.swing.JTextField txtTransactionDatabaseWriteIndex;
+	private javax.swing.JTextField txtUDPRemoteIP;
+	private javax.swing.JTextField txtUDPRemotePort;
+	private javax.swing.JTextField txtWriteSN;
+	// endregion
+	private final static Logger myLog = Logger.getLogger(FormMain.class);
 	private ConnectorAllocator _Allocator;
-	private ConcurrentHashMap<String, String> CommandName;
+	// public static ConcurrentHashMap<String, String> CommandName;
 	private ConcurrentHashMap<String, CommandResultCallback> CommandResult;
 	private Timer timer = new Timer();
 	private boolean mIsClose;
-	@Override
-	public void ClientOnline(TCPServerClientDetail client) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
-	}
-	@Override
-	public void ClientOffline(TCPServerClientDetail client) {
-		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
-	}
-	private interface CommandResultCallback {
-		public void ResultToLog(StringBuilder strBuf, INCommandResult result);
-	}
+	private final StringBuilder strLog;
 	/**
-	 * Creates new form frmMain
+	 * 主窗口
 	 */
-	public frmMain() {
+	FormMain() {
 		initComponents();
 		setTitle("FC8800 控制器调试器 V1.0");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		mIsClose = false;
-		// JFrame.setDefaultLookAndFeelDecorated(true);
+		JFrame.setDefaultLookAndFeelDecorated(true);
 		// 移动位置
 		setSize(1040, 800);
-		Dimension ScreenSize = getToolkit().getScreenSize();
+		Dimension screenSize = getToolkit().getScreenSize();
 		Rectangle oldRectangle = getBounds();
-		setBounds((ScreenSize.width - oldRectangle.width) / 2, (ScreenSize.height - oldRectangle.height) / 2, oldRectangle.width, oldRectangle.height);
+		setBounds((screenSize.width - oldRectangle.width) / 2, (screenSize.height - oldRectangle.height) / 2, oldRectangle.width, oldRectangle.height);
 		// 加入按钮组
 		bgConnectType.add(RadUDP);
 		bgConnectType.add(RadTCPClient);
 		bgConnectType.add(RadTCPServer);
 		RadTCPClient.setSelected(true);
 		// 初始化timer
-		timer = new Timer();
-		timer.schedule(new TimeTask(), 200, 1000);
+		// timer = new Timer();
+		// timer.schedule(new TimeTask(), 200, 1000);
 		ShowConnectPanel();
 		_Allocator = ConnectorAllocator.GetAllocator();
 		_Allocator.AddListener(this);
 		strLog = new StringBuilder(50000);
-		frmMain frm = this;
-		/**
-		 * 一定要监听退出事件
-		 */
+		FormMain frm = this;
+		// 一定要监听退出事件
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				frm.setVisible(false);
 				if (_Allocator != null) {
 					_Allocator.DeleteListener(frm);
-					/**
-					 * 这里一定要释放，否则无法退出程序
-					 */
+					// 这里一定要释放，否则无法退出程序
 					_Allocator.Release();
 					_Allocator = null;
 				}
 				mIsClose = true;
-				timer.cancel();
-				timer = null;
+				// timer.cancel();
+				// timer = null;
+				myLog.info("关闭窗口,程序即将退出！");
+				System.exit(0);
 			}
 		});
-		CommandResult = new ConcurrentHashMap<String, CommandResultCallback>();
-		CommandName = new ConcurrentHashMap<String, String>();
-		IniCommandName();
+		CommandResult = new ConcurrentHashMap<>();
+		// CommandName = new ConcurrentHashMap<>();
+		FormUtils.iniCommandName();
 		IniCardDataBase();
 		IniWatchEvent();
 	}
-	private class TimeTask extends java.util.TimerTask {
-		@Override
-		public void run() {
-			if (mIsClose) {
-				return;
-			}
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			Calendar dt = Calendar.getInstance();
-			LblDate.setText(format.format(dt.getTime()));
-			format.applyLocalizedPattern("HH:mm:ss");
-			lblTime.setText(format.format(dt.getTime()));
-		}
-	}
-	private void ShowConnectPanel() {
-		pnlTCPServer.setVisible(false);
-		PnlUDP.setVisible(false);
-		pnlTCPClient.setVisible(false);
-		if (RadTCPClient.isSelected()) {
-			pnlTCPClient.setVisible(true);
-		}
-		if (RadUDP.isSelected()) {
-			PnlUDP.setVisible(true);
-		}
-		if (RadTCPServer.isSelected()) {
-			pnlTCPServer.setVisible(true);
-		}
-	}
 	/**
-	 * This method is called from within the constructor to initialize the form.
-	 * WARNING: Do NOT modify this code. The content of this method is always
-	 * regenerated by the Form Editor.
+	 * 初始化界面内容
 	 */
 	private void initComponents() {
 		bgConnectType = new javax.swing.ButtonGroup();
@@ -373,19 +454,21 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		jpSNDetail.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(13, 3, 36, -1));
 		txtSN.setText("MC-5912T19060002");
 		jpSNDetail.add(txtSN, new org.netbeans.lib.awtextra.AbsoluteConstraints(53, 0, 131, -1));
-		txtPassword.setText("FFFFFFFF");
+		txtPassword.setText("123456FF");
 		jpSNDetail.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(261, 0, 88, -1));
 		jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 		jLabel7.setText("通讯密码：");
 		jpSNDetail.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(188, 3, 69, -1));
 		getContentPane().add(jpSNDetail, new org.netbeans.lib.awtextra.AbsoluteConstraints(2, 130, 349, 23));
 		jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-		LblDate.setFont(new java.awt.Font("宋体", 0, 14)); // NOI18N
+		// NOI18N
+		LblDate.setFont(new java.awt.Font("宋体", Font.PLAIN, 14));
 		LblDate.setForeground(new java.awt.Color(0, 0, 255));
 		LblDate.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		LblDate.setText("2017年10月23日");
+		LblDate.setText("获取日期");
 		jPanel3.add(LblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 121, -1));
-		lblTime.setFont(new java.awt.Font("宋体", 0, 14)); // NOI18N
+		// NOI18N
+		lblTime.setFont(new java.awt.Font("宋体", Font.PLAIN, 14));
 		lblTime.setForeground(new java.awt.Color(0, 0, 255));
 		lblTime.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 		lblTime.setText("18:09:07");
@@ -398,6 +481,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(355, 14, -1, 140));
 		txtLog.setColumns(20);
 		txtLog.setRows(5);
+		txtLog.setLineWrap(true);
+		txtLog.setWrapStyleWord(true);
 		txtLog.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -406,7 +491,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		});
 		jpLog.setViewportView(txtLog);
 		getContentPane().add(jpLog, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 163, 501, 590));
-		jTabSetting.setName(""); // NOI18N
+		// NOI18N
+		jTabSetting.setName("");
 		jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 		jPanel6.setLayout(null);
 		butReadConnectPassword.setText("读通讯密码");
@@ -590,7 +676,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		jTextArea1.setEditable(false);
 		jTextArea1.setColumns(20);
 		jTextArea1.setRows(5);
-		jTextArea1.setText("UDP通讯只支持如下指令\n【搜索不同网络标识设备】、【设置设备网络标识】\n【读TCP参数】、【写TCP参数】");
+		jTextArea1.setText("UDP通讯只支持如下指令【搜索不同网络标识设备】、【设置设备网络标识】【读TCP参数】、【写TCP参数】");
 		jScrollPane2.setViewportView(jTextArea1);
 		jPanel6.add(jScrollPane2);
 		jScrollPane2.setBounds(20, 500, 390, 110);
@@ -872,31 +958,70 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		jTabSetting.addTab("记录管理", jPanel4);
 		getContentPane().add(jTabSetting, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 10, 510, 750));
 		pack();
-	}// </editor-fold>//GEN-END:initComponents
-	private void RadTCPClientActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_RadTCPClientActionPerformed
+	}
+	@Override
+	public void ClientOnline(TCPServerClientDetail client) {
+		// To change body of generated methods, choose Tools | Templates.
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	@Override
+	public void ClientOffline(TCPServerClientDetail client) {
+		// To change body of generated methods, choose Tools | Templates.
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+	}
+	private interface CommandResultCallback {
+		void ResultToLog(StringBuilder strBuf, INCommandResult result);
+	}
+	private void ShowConnectPanel() {
+		pnlTCPServer.setVisible(false);
+		PnlUDP.setVisible(false);
+		pnlTCPClient.setVisible(false);
+		if (RadTCPClient.isSelected()) {
+			pnlTCPClient.setVisible(true);
+		}
+		if (RadUDP.isSelected()) {
+			PnlUDP.setVisible(true);
+		}
+		if (RadTCPServer.isSelected()) {
+			pnlTCPServer.setVisible(true);
+		}
+	}
+	// </editor-fold>//GEN-END:initComponents
+	// GEN-FIRST:event_RadTCPClientActionPerformed
+	private void RadTCPClientActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		ShowConnectPanel();
-	}// GEN-LAST:event_RadTCPClientActionPerformed
-	private void RadUDPActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_RadUDPActionPerformed
+	}
+	// GEN-LAST:event_RadTCPClientActionPerformed
+	// GEN-FIRST:event_RadUDPActionPerformed
+	private void RadUDPActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		ShowConnectPanel();
-	}// GEN-LAST:event_RadUDPActionPerformed
-	private void RadTCPServerActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_RadTCPServerActionPerformed
+	}
+	// GEN-LAST:event_RadUDPActionPerformed
+	// GEN-FIRST:event_RadTCPServerActionPerformed
+	private void RadTCPServerActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		ShowConnectPanel();
-	}// GEN-LAST:event_RadTCPServerActionPerformed
-	private void txtLogMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_txtLogMouseClicked
-		// TODO add your handling code here:
-		if (evt.getClickCount() == 2) {
+	}
+	// GEN-LAST:event_RadTCPServerActionPerformed
+	// GEN-FIRST:event_txtLogMouseClicked
+	private void txtLogMouseClicked(java.awt.event.MouseEvent evt) {
+		if (evt.getClickCount() == 3) {
 			strLog.delete(0, strLog.length());
 			txtLog.setText("");
 		}
-	}// GEN-LAST:event_txtLogMouseClicked
+	}
+	// GEN-LAST:event_txtLogMouseClicked
+	// GEN-FIRST:event_butReadTransactionDatabaseActionPerformed
 	/**
 	 * 读取新记录
-	 * @param evt
+	 * @param evt evt
 	 */
-	private void butReadTransactionDatabaseActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butReadTransactionDatabaseActionPerformed
+	private void butReadTransactionDatabaseActionPerformed(java.awt.event.ActionEvent evt) {
 		// 读取新记录
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
@@ -909,8 +1034,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "单次读取数量必须为数字，取值范围1-300！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		int PacketSize = Integer.valueOf(strPacketSize);
-		if (PacketSize > 300 || PacketSize < 0) {
+		int packetSize = Integer.parseInt(strPacketSize);
+		if (packetSize > 300 || packetSize < 0) {
 			JOptionPane.showMessageDialog(null, "单次读取数量必须为数字，取值范围1-300！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -919,27 +1044,27 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "读新记录数量必须是数字，取值范围0-160000！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		int Quantity = Integer.valueOf(strQuantity);
-		if (Quantity < 0) {
+		int quantity = Integer.parseInt(strQuantity);
+		if (quantity < 0) {
 			JOptionPane.showMessageDialog(null, "读新记录数量必须大于0！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		ReadTransactionDatabase_Parameter par = new ReadTransactionDatabase_Parameter(dt, e_TransactionDatabaseType.valueOf(type));
-		par.PacketSize = PacketSize;
-		par.Quantity = Quantity;
+		par.PacketSize = packetSize;
+		par.Quantity = quantity;
 		// 徐铭康修改
 		// ReadTransactionDatabase cmd = new ReadTransactionDatabase(par);
 		ReadTransactionDatabase cmd = new ReadTransactionDatabase(par);
 		AddCommandResultCallback(cmd.getClass().getName(), (x, y) -> {
 			ReadTransactionDatabase_Result result = (ReadTransactionDatabase_Result) y;
-			x.append("\n记录类型：");
+			// x.append("记录类型：");
+			x.append("记录类型：");
 			x.append(mWatchTypeNameList[result.DatabaseType.getValue()]);
 			x.append("，本次读取数量：");
 			x.append(result.Quantity);
 			x.append("，未读取新记录数量：");
 			x.append(result.readable);
 			if (result.Quantity > 0) {
-				x.append("\n");
 				// 开始写出记录日志
 				StringBuilder log = new StringBuilder(result.Quantity * 100);
 				String[] sTransactionList = null;
@@ -962,25 +1087,28 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 					case OnSystemTransaction:
 						sTransactionList = mSystemTransactionList;
 						break;
+					default:
+						Logger.getRootLogger().info("");
 				}
 				PrintTransactionDatabase(result.TransactionList, log, sTransactionList);
 				String path = WriteFile("门禁调试器记录数据库", log, false);
 				if (path == null) {
-					x.append("\n写日志失败！");
+					x.append("写日志失败！");
 				}
 				else {
-					x.append("\n以保存到日志文件，");
+					x.append("以保存到日志文件，");
 					x.append(path);
 				}
-				x.append("\n");
 				if (result.Quantity < 1000) {
 					x.append(log);
 				}
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butReadTransactionDatabaseActionPerformed
-	private void butWriteTransactionDatabaseWriteIndexActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWriteTransactionDatabaseWriteIndexActionPerformed
+	}
+	// GEN-LAST:event_butReadTransactionDatabaseActionPerformed
+	// GEN-FIRST:event_butWriteTransactionDatabaseWriteIndexActionPerformed
+	private void butWriteTransactionDatabaseWriteIndexActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -991,7 +1119,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "写索引号必须是数字！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		int index = Integer.valueOf(strWriteIndex);
+		int index = Integer.parseInt(strWriteIndex);
 		if (index > 160000 || index < 0) {
 			JOptionPane.showMessageDialog(null, "写索引号取值范围0-160000！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1000,8 +1128,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		par.WriteIndex = index;
 		WriteTransactionDatabaseWriteIndex cmd = new WriteTransactionDatabaseWriteIndex(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butWriteTransactionDatabaseWriteIndexActionPerformed
-	private void butWriteTransactionDatabaseReadIndexActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWriteTransactionDatabaseReadIndexActionPerformed
+	}
+	// GEN-LAST:event_butWriteTransactionDatabaseWriteIndexActionPerformed
+	// GEN-FIRST:event_butWriteTransactionDatabaseReadIndexActionPerformed
+	private void butWriteTransactionDatabaseReadIndexActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -1012,7 +1142,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "读索引号必须是数字！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		int index = Integer.valueOf(strReadIndex);
+		int index = Integer.parseInt(strReadIndex);
 		if (index > 160000 || index < 0) {
 			JOptionPane.showMessageDialog(null, "读索引号取值范围0-160000！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1022,8 +1152,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		par.IsCircle = chkTransactionIsCircle.isSelected();
 		WriteTransactionDatabaseReadIndex cmd = new WriteTransactionDatabaseReadIndex(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butWriteTransactionDatabaseReadIndexActionPerformed
-	private void butReadTransactionDatabaseByIndexActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butReadTransactionDatabaseByIndexActionPerformed
+	}
+	// GEN-LAST:event_butWriteTransactionDatabaseReadIndexActionPerformed
+	// GEN-FIRST:event_butReadTransactionDatabaseByIndexActionPerformed
+	private void butReadTransactionDatabaseByIndexActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -1035,7 +1167,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "读记录起始索引号必须是数字！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		int index = Integer.valueOf(strReadIndex);
+		int index = Integer.parseInt(strReadIndex);
 		if (index > 160000 || index < 0) {
 			JOptionPane.showMessageDialog(null, "读记录起始索引号取值范围0-160000！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1045,7 +1177,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "读记录数量必须是数字！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		int Quantity = Integer.valueOf(strQuantity);
+		int Quantity = Integer.parseInt(strQuantity);
 		if (Quantity > 400 || Quantity <= 0) {
 			JOptionPane.showMessageDialog(null, "读记录数量取值范围1-400！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -1057,14 +1189,13 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		ReadTransactionDatabaseByIndex cmd = new ReadTransactionDatabaseByIndex(par);
 		AddCommandResultCallback(cmd.getClass().getName(), (x, y) -> {
 			ReadTransactionDatabaseByIndex_Result result = (ReadTransactionDatabaseByIndex_Result) y;
-			x.append("\n记录类型：");
+			x.append("记录类型：");
 			x.append(mWatchTypeNameList[result.DatabaseType.getValue()]);
 			x.append("，起始号：");
 			x.append(result.ReadIndex);
 			x.append("，读取数量：");
 			x.append(result.Quantity);
 			if (result.Quantity > 0) {
-				x.append("\n");
 				// 开始写出记录日志
 				StringBuilder log = new StringBuilder(result.Quantity * 100);
 				String[] sTransactionList = null;
@@ -1093,8 +1224,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butReadTransactionDatabaseByIndexActionPerformed
-	private void butClearTransactionDatabaseActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butClearTransactionDatabaseActionPerformed
+	}
+	// GEN-LAST:event_butReadTransactionDatabaseByIndexActionPerformed
+	// GEN-FIRST:event_butClearTransactionDatabaseActionPerformed
+	private void butClearTransactionDatabaseActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -1103,8 +1236,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		ClearTransactionDatabase_Parameter par = new ClearTransactionDatabase_Parameter(dt, e_TransactionDatabaseType.valueOf(type));
 		ClearTransactionDatabase cmd = new ClearTransactionDatabase(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butClearTransactionDatabaseActionPerformed
-	private void butTransactionDatabaseEmptyActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butTransactionDatabaseEmptyActionPerformed
+	}
+	// GEN-LAST:event_butClearTransactionDatabaseActionPerformed.
+	// GEN-FIRST:event_butTransactionDatabaseEmptyActionPerformed
+	private void butTransactionDatabaseEmptyActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -1112,12 +1247,14 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		CommandParameter par = new CommandParameter(dt);
 		TransactionDatabaseEmpty cmd = new TransactionDatabaseEmpty(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butTransactionDatabaseEmptyActionPerformed
+	}
+	// GEN-LAST:event_butTransactionDatabaseEmptyActionPerformed
+	// GEN-FIRST:event_butReadTransactionDatabaseDetailActionPerformed
 	/**
 	 * 读取记录数据库详情
-	 * @param evt
+	 * @param evt evt
 	 */
-	private void butReadTransactionDatabaseDetailActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butReadTransactionDatabaseDetailActionPerformed
+	private void butReadTransactionDatabaseDetailActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -1134,8 +1271,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			PrintTransactionDatabaseDetail(mWatchTypeNameList[6], result.DatabaseDetail.SystemTransactionDetail, x);
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butReadTransactionDatabaseDetailActionPerformed
-	private void butDeleteCardByListActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butDeleteCardByListActionPerformed
+	}
+	// GEN-LAST:event_butReadTransactionDatabaseDetailActionPerformed
+	// GEN-FIRST:event_butDeleteCardByListActionPerformed
+	private void butDeleteCardByListActionPerformed(java.awt.event.ActionEvent evt) {
 		// 删除列表中的卡片
 		if (mCardList == null) {
 			JOptionPane.showMessageDialog(null, "卡片列表为空！", "卡片管理", JOptionPane.ERROR_MESSAGE);
@@ -1145,7 +1284,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		if (dt == null) {
 			return;
 		}
-		dt.Timeout = 5000;// 此函数超时时间设定长一些
+		dt.Timeout = 5000;
+		// 此函数超时时间设定长一些
 		int ilstLen = mCardList.size();
 		// 徐铭康修改
 		// DeleteCard cmd = new DeleteCard(par);
@@ -1157,8 +1297,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		DeleteCard_Parameter par = new DeleteCard_Parameter(dt, lst);
 		cmd = new DeleteCard(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butDeleteCardByListActionPerformed
-	private void butWriteCardListBySortActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWriteCardListBySortActionPerformed
+	}
+	// GEN-LAST:event_butDeleteCardByListActionPerformed
+	// GEN-FIRST:event_butWriteCardListBySortActionPerformed
+	private void butWriteCardListBySortActionPerformed(java.awt.event.ActionEvent evt) {
 		// 将列表中的卡片上传至排序区
 		if (mCardList == null) {
 			JOptionPane.showMessageDialog(null, "卡片列表为空！", "卡片管理", JOptionPane.ERROR_MESSAGE);
@@ -1180,16 +1322,17 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			if (result.FailTotal > 0) {
 				x.append("失败数量：");
 				x.append(result.FailTotal);
-				x.append("，卡号列表：\n");
+				x.append("，卡号列表：");
 				for (CardDetail c : _list) {
 					x.append(c.GetCardData());
-					x.append("\n");
 				}
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butWriteCardListBySortActionPerformed
-	private void butWriteCardListBySequenceActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWriteCardListBySequenceActionPerformed
+	}
+	// GEN-LAST:event_butWriteCardListBySortActionPerformed
+	// GEN-FIRST:event_butWriteCardListBySequenceActionPerformed
+	private void butWriteCardListBySequenceActionPerformed(java.awt.event.ActionEvent evt) {
 		// 将列表中的卡片上传至非排序区
 		if (mCardList == null) {
 			JOptionPane.showMessageDialog(null, "卡片列表为空！", "卡片管理", JOptionPane.ERROR_MESSAGE);
@@ -1211,16 +1354,18 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			if (result.FailTotal > 0) {
 				x.append("失败数量：");
 				x.append(result.FailTotal);
-				x.append("，卡号列表：\n");
+				x.append("，卡号列表：");
 				for (CardDetail c : _list) {
 					x.append(c.GetCardData());
-					x.append("\n");
+					x.append("");
 				}
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butWriteCardListBySequenceActionPerformed
-	private void butCardListAutoCreateActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butCardListAutoCreateActionPerformed
+	}
+	// GEN-LAST:event_butWriteCardListBySequenceActionPerformed
+	// GEN-FIRST:event_butCardListAutoCreateActionPerformed
+	private void butCardListAutoCreateActionPerformed(java.awt.event.ActionEvent evt) {
 		// 自动创建测试卡列表
 		int maxSize = 1000;
 		String strSize = txtCardAutoCreateSzie.getText();
@@ -1228,7 +1373,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "待生成的数量为数字，取值范围1-120000！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		maxSize = Integer.valueOf(strSize);
+		maxSize = Integer.parseInt(strSize);
 		if (mCardList == null) {
 			mCardList = new ArrayList<>(10000);
 		}
@@ -1293,8 +1438,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		// int hs=(int)(endtime.getTimeInMillis()- time.getTimeInMillis());
 		// System.out.println("耗时：" + hs);
 		FillCardToList();
-	}// GEN-LAST:event_butCardListAutoCreateActionPerformed
-	private void butDeleteCardActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butDeleteCardActionPerformed
+	}
+	// GEN-LAST:event_butCardListAutoCreateActionPerformed
+	// GEN-FIRST:event_butDeleteCardActionPerformed
+	private void butDeleteCardActionPerformed(java.awt.event.ActionEvent evt) {
 		// 删除卡片
 		CardDetail cd = GetCardDetail();
 		if (cd == null) {
@@ -1305,7 +1452,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		if (dt == null) {
 			return;
 		}
-		dt.Timeout = 5000;// 此函数超时时间设定长一些
+		// 此函数超时时间设定长一些
+		dt.Timeout = 5000;
 		// 徐铭康修改
 		// DeleteCard cmd = new DeleteCard(par);
 		String[] lst = new String[1];
@@ -1313,8 +1461,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		DeleteCard_Parameter par = new DeleteCard_Parameter(dt, lst);
 		DeleteCard cmd = new DeleteCard(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butDeleteCardActionPerformed
-	private void butUploadCardActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butUploadCardActionPerformed
+	}
+	// GEN-LAST:event_butDeleteCardActionPerformed
+	// GEN-FIRST:event_butUploadCardActionPerformed
+	private void butUploadCardActionPerformed(java.awt.event.ActionEvent evt) {
 		// 上传卡片至非排序区
 		CardDetail cd = GetCardDetail();
 		if (cd == null) {
@@ -1338,21 +1488,25 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			if (result.FailTotal > 0) {
 				x.append("失败数量：");
 				x.append(result.FailTotal);
-				x.append("，卡号列表：\n");
+				x.append("，卡号列表：");
 				for (CardDetail c : _list) {
 					x.append(c.GetCardData());
-					x.append("\n");
+					x.append("");
 				}
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butUploadCardActionPerformed
-	private void butCardListClearActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butCardListClearActionPerformed
+	}
+	// GEN-LAST:event_butUploadCardActionPerformed
+	// GEN-FIRST:event_butCardListClearActionPerformed
+	private void butCardListClearActionPerformed(java.awt.event.ActionEvent evt) {
 		ClearCardList();
 		mCardList.clear();
 		mCardList = null;
-	}// GEN-LAST:event_butCardListClearActionPerformed
-	private void butAddCardToListActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butAddCardToListActionPerformed
+	}
+	// GEN-LAST:event_butCardListClearActionPerformed
+	// GEN-FIRST:event_butAddCardToListActionPerformed
+	private void butAddCardToListActionPerformed(java.awt.event.ActionEvent evt) {
 		CardDetail cd = GetCardDetail();
 		if (cd == null) {
 			return;
@@ -1374,8 +1528,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			DefaultTableModel tableModel = (DefaultTableModel) tblCard.getModel();
 			tableModel.addRow(row);
 		}
-	}// GEN-LAST:event_butAddCardToListActionPerformed
-	private void butReadCardDetailActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butReadCardDetailActionPerformed
+	}
+	// GEN-LAST:event_butAddCardToListActionPerformed
+	// GEN-FIRST:event_butReadCardDetailActionPerformed
+	private void butReadCardDetailActionPerformed(java.awt.event.ActionEvent evt) {
 		CardDetail cd = GetCardDetail();
 		if (cd == null) {
 			return;
@@ -1392,7 +1548,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			ReadCardDetail_Result result = (ReadCardDetail_Result) y;
 			if (result.IsReady) {
 				CardDetail card = (CardDetail) result.Card;
-				x.append("卡片在数据库中存储，卡片信息：\n");
+				x.append("卡片在数据库中存储，卡片信息：");
 				Object[] arr = CardDetailToRow(card, 0);
 				StringBuilder builder = new StringBuilder(200);
 				builder.append("卡号：");
@@ -1401,13 +1557,13 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 				builder.append(arr[2]);// cd.Password
 				builder.append("，有效期：");
 				builder.append(arr[3]);// cd.Expiry
-				builder.append("\n有效次数：");
+				builder.append("有效次数：");
 				builder.append(arr[5]);// OpenTimes
 				builder.append("，特权：");
 				builder.append(arr[6]);// Privilege
 				builder.append("，卡状态：");
 				builder.append(arr[4]);// cd.CardStatus
-				builder.append("权限和时段：\n");
+				builder.append("权限和时段：");
 				int arrIndex = 7;
 				for (int i = 1; i <= 4; i++) {
 					builder.append("门");
@@ -1421,7 +1577,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 					arrIndex++;
 					builder.append("；");
 				}
-				builder.append("\n节假日限制:");
+				builder.append("节假日限制:");
 				builder.append(arr[arrIndex]);
 				x.append(builder);
 				builder = null;
@@ -1431,8 +1587,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butReadCardDetailActionPerformed
-	private void butClearCardDataBaseActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butClearCardDataBaseActionPerformed
+	}
+	// GEN-LAST:event_butReadCardDetailActionPerformed
+	// GEN-FIRST:event_butClearCardDataBaseActionPerformed
+	private void butClearCardDataBaseActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -1447,8 +1605,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			x.append(cmbCardDataBaseType.getSelectedItem());
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butClearCardDataBaseActionPerformed
-	private void butReadCardDatabaseDetailActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butReadCardDatabaseDetailActionPerformed
+	}
+	// GEN-LAST:event_butClearCardDataBaseActionPerformed
+	// GEN-FIRST:event_butReadCardDatabaseDetailActionPerformed
+	private void butReadCardDatabaseDetailActionPerformed(java.awt.event.ActionEvent evt) {
 		// 读取控制器中的卡片数据库信息
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
@@ -1458,18 +1618,20 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		ReadCardDatabaseDetail cmd = new ReadCardDatabaseDetail(par);
 		AddCommandResultCallback(cmd.getClass().getName(), (x, y) -> {
 			ReadCardDatabaseDetail_Result result = (ReadCardDatabaseDetail_Result) y;
-			x.append("\n排序区卡容量：");
+			x.append("排序区卡容量：");
 			x.append(result.SortDataBaseSize);
 			x.append("；排序区卡数量：");
 			x.append(result.SortCardSize);
-			x.append("\n非排序区卡容量：");
+			x.append("非排序区卡容量：");
 			x.append(result.SequenceDataBaseSize);
 			x.append("；非排序区卡数量：");
 			x.append(result.SequenceCardSize);
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butReadCardDatabaseDetailActionPerformed
-	private void butReadCardDataBaseActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butReadCardDataBaseActionPerformed
+	}
+	// GEN-LAST:event_butReadCardDatabaseDetailActionPerformed
+	// GEN-FIRST:event_butReadCardDataBaseActionPerformed
+	private void butReadCardDataBaseActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;
@@ -1524,7 +1686,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 					}
 					builder.append("节假日限制:");
 					builder.append(arr[arrIndex]);
-					builder.append("\n");
+					builder.append("");
 					// 添加数据到表格
 					tableModel.addRow(arr);
 					Index += 1;
@@ -1534,10 +1696,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 				try {
 					String file = WriteFile("CardDatabase", builder, false);
 					if (file == null) {
-						x.append("\n卡数据导出失败！");
+						x.append("卡数据导出失败！");
 					}
 					else {
-						x.append("\n卡数据导出成功，地址：");
+						x.append("卡数据导出成功，地址：");
 						x.append(file);
 					}
 				}
@@ -1546,8 +1708,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			}
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butReadCardDataBaseActionPerformed
-	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton2ActionPerformed
+	}
+	// GEN-LAST:event_butReadCardDataBaseActionPerformed
+	// GEN-FIRST:event_jButton2ActionPerformed
+	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
@@ -1557,8 +1721,10 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		CommandParameter par = new CommandParameter(dt);
 		WriteTime cmd = new WriteTime(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_jButton2ActionPerformed
-	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton1ActionPerformed
+	}
+	// GEN-LAST:event_jButton2ActionPerformed
+	// GEN-FIRST:event_jButton1ActionPerformed
+	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
@@ -1574,7 +1740,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			x.append(sdf.format(result.ControllerDate.getTime()));
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_jButton1ActionPerformed
+	}
+	// GEN-LAST:event_jButton1ActionPerformed
 	/**
 	 * 自动搜索控制器
 	 * @param evt
@@ -1601,13 +1768,13 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		SearchEquptOnNetNum cmd = new SearchEquptOnNetNum(par);
 		AddCommandResultCallback(cmd.getClass().getName(), (x, y) -> {
 			SearchEquptOnNetNum_Result result = (SearchEquptOnNetNum_Result) y;
-			x.append("\n第");
+			x.append("第");
 			x.append(SearchTimes);
 			x.append("次搜索，本次搜索到控制器：");
 			x.append(result.SearchTotal);
 			x.append("个。");
 			if (result.SearchTotal > 0) {
-				x.append("\n");
+				x.append("");
 				PrintSearchDoor(result.ResultList, x);
 				// 将已搜索到的控制器设定网络标志，防止下次再搜索到
 				SetDoorNetFlag(result.ResultList);
@@ -1618,7 +1785,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 				_Allocator.AddCommand(cmd1);
 			}
 			else {
-				x.append("\n*************搜索结束！*******************");
+				x.append("*************搜索结束！*******************");
 				return;
 			}
 			SearchTimes++;
@@ -1668,9 +1835,9 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 	}// GEN-LAST:event_butLockDoorActionPerformed
 	/**
 	 * 远程关门
-	 * @param evt
+	 * @param evt evt
 	 */
-	private void butCloseDoorActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butCloseDoorActionPerformed
+	private void butCloseDoorActionPerformed(java.awt.event.ActionEvent evt) {
 		// 远程关门
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
@@ -1827,8 +1994,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "请先读取TCP参数！", "错误", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		mReadTCPDetail.SetServerIP("0.0.0.0");
-		mReadTCPDetail.SetServerAddr("www.123.cn");
+		mReadTCPDetail.SetServerIP("192.168.1.2");
+		mReadTCPDetail.SetServerAddr("192.168.1.2");
 		WriteTCPSetting_Parameter par = new WriteTCPSetting_Parameter(dt, mReadTCPDetail);
 		INCommand cmd = new WriteTCPSetting(par);
 		_Allocator.AddCommand(cmd);
@@ -1850,7 +2017,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			PirntTCPDetail(tcp, x);
 		});
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butReadTCPSettingActionPerformed
+	}
+	// GEN-LAST:event_butReadTCPSettingActionPerformed
 	private void butResetConnectPasswordActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butResetConnectPasswordActionPerformed
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
@@ -1859,7 +2027,8 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		CommandParameter par = new CommandParameter(dt);
 		INCommand cmd = new ResetConnectPassword(par);
 		_Allocator.AddCommand(cmd);
-	}// GEN-LAST:event_butResetConnectPasswordActionPerformed
+	}
+	// GEN-LAST:event_butResetConnectPasswordActionPerformed
 	private void butWriteConnectPasswordActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWriteConnectPasswordActionPerformed
 		// String pwd = txtPassword.getText();
 		String pwd = "12345678";
@@ -1893,31 +2062,31 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 	}// GEN-LAST:event_butReadConnectPasswordActionPerformed
 	private TCPDetail mReadTCPDetail;
 	private void PirntTCPDetail(TCPDetail tcp, StringBuilder x) {
-		x.append("\nMAC：");
+		x.append("MAC：");
 		x.append(tcp.GetMAC());
-		x.append("\n");
+		x.append("");
 		x.append("IP：");
 		x.append(tcp.GetIP());
 		x.append(",子网掩码：");
 		x.append(tcp.GetIPMask());
 		x.append(",网关：");
 		x.append(tcp.GetIPGateway());
-		x.append("\n");
+		x.append("");
 		x.append("DNS1：");
 		x.append(tcp.GetDNS());
 		x.append(",DNS2：");
 		x.append(tcp.GetDNSBackup());
-		x.append("\n");
+		x.append("");
 		x.append("TCP端口：");
 		x.append(tcp.GetTCPPort());
 		x.append(",UDP端口：");
 		x.append(tcp.GetUDPPort());
-		x.append("\n");
+		x.append("");
 		x.append("服务器IP：");
 		x.append(tcp.GetServerIP());
 		x.append(",端口：");
 		x.append(tcp.GetServerPort());
-		x.append("\n");
+		x.append("");
 		x.append("服务器域名：");
 		x.append(tcp.GetServerAddr());
 	}
@@ -1927,18 +2096,18 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		cmbCardDataBaseType.addItem("非排序卡区域");
 		cmbCardDataBaseType.addItem("所有区域");
 		DefaultTableModel tableModel = (DefaultTableModel) tblCard.getModel();
-		String Cols[] = "序号，卡号，密码，有效期，卡片状态，有效次数，特权，门1权限，门1时段，门2权限，门2时段，门3权限，门3时段，门4权限，门4时段，节假日限制".split("，");
+		String[] cols = "序号，卡号，密码，有效期，卡片状态，有效次数，特权，门1权限，门1时段，门2权限，门2时段，门3权限，门3时段，门4权限，门4时段，节假日限制".split("，");
 		// tblCard.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		tblCard.setColumnSelectionAllowed(true);
-		int ColWidth[] = new int[]{40, 70, 60, 110, 60, 60, 70, 55, 55, 55, 55, 55, 55, 55, 55, 70};
-		for (String Col : Cols) {
+		int[] colWidth = new int[]{40, 70, 60, 110, 60, 60, 70, 55, 55, 55, 55, 55, 55, 55, 55, 70};
+		for (String Col : cols) {
 			tableModel.addColumn(Col);
 		}
-		for (int i = 0; i < ColWidth.length; i++) {
+		for (int i = 0; i < colWidth.length; i++) {
 			TableColumn Column = tblCard.getColumnModel().getColumn(i);
-			Column.setMinWidth(ColWidth[i]);
+			Column.setMinWidth(colWidth[i]);
 			Column.setMaxWidth(150);
-			Column.setPreferredWidth(ColWidth[i]);
+			Column.setPreferredWidth(colWidth[i]);
 		}
 		// 设置table内容居中
 		DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();// 设置table内容居中
@@ -2094,7 +2263,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "卡号为1-10位数字！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
-		CardData = Long.valueOf(Card);
+		CardData = Long.parseLong(Card);
 		if (CardData > UInt32Util.UINT32_MAX || CardData == 0) {
 			JOptionPane.showMessageDialog(null, "卡号不能大于4294967295！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
@@ -2122,7 +2291,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "有效次数必须是数字，取值范围0-65535！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
-		iOpenTimes = Integer.valueOf(OpenTimes);
+		iOpenTimes = Integer.parseInt(OpenTimes);
 		if (iOpenTimes > 65535) {
 			JOptionPane.showMessageDialog(null, "有效次数必须是数字，取值范围0-65535！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
@@ -2164,7 +2333,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "卡号为1-10位数字！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
-		CardData = Long.valueOf(Card);
+		CardData = Long.parseLong(Card);
 		if (CardData > UInt32Util.UINT32_MAX || CardData == 0) {
 			JOptionPane.showMessageDialog(null, "卡号不能大于4294967295！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
@@ -2192,7 +2361,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			JOptionPane.showMessageDialog(null, "有效次数必须是数字，取值范围0-65535！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
-		iOpenTimes = Integer.valueOf(OpenTimes);
+		iOpenTimes = Integer.parseInt(OpenTimes);
 		if (iOpenTimes > 65535) {
 			JOptionPane.showMessageDialog(null, "有效次数必须是数字，取值范围0-65535！", "卡片管理", JOptionPane.ERROR_MESSAGE);
 			return null;
@@ -2218,7 +2387,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 	 * @param buf
 	 */
 	private void PrintTransactionDatabaseDetail(String TransactionName, TransactionDetail dt, StringBuilder buf) {
-		buf.append("\n");
+		buf.append("");
 		buf.append(TransactionName);
 		buf.append("：容量：");
 		buf.append(dt.DataBaseMaxSize);
@@ -2283,7 +2452,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 					}
 				}
 			}
-			log.append("\n");
+			log.append("");
 		}
 	}
 	private int SearchTimes = 0;
@@ -2306,12 +2475,12 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 					PirntTCPDetail(td, log);
 				}
 			}
-			log.append("\n");
+			log.append("");
 		}
 	}
 	/**
 	 * 设定控制器的网络标志
-	 * @param lst
+	 * @param lst lst
 	 */
 	private void SetDoorNetFlag(ArrayList<SearchEquptOnNetNum_Result.SearchResult> lst) {
 		// ByteBuf tmpBuf = ByteUtil.ALLOCATOR.buffer(256, 300);
@@ -2338,130 +2507,6 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			_Allocator.AddCommand(cmd);
 		}
 	}
-	// Variables declaration - do not modify//GEN-BEGIN:variables
-	private javax.swing.JButton ButReadDeadline;
-	private javax.swing.JButton ButWriteDeadline;
-	private javax.swing.JLabel LblDate;
-	private javax.swing.JPanel PnlUDP;
-	private javax.swing.JRadioButton RadTCPClient;
-	private javax.swing.JRadioButton RadTCPServer;
-	private javax.swing.JRadioButton RadUDP;
-	private javax.swing.JTextField TxtCardExpiry;
-	private javax.swing.ButtonGroup bgConnectType;
-	private javax.swing.JButton butAddCardToList;
-	private javax.swing.JButton butAutoSearchDoor;
-	private javax.swing.JButton butBeginServer;
-	private javax.swing.JButton butBeginWatch;
-	private javax.swing.JButton butCardListAutoCreate;
-	private javax.swing.JButton butCardListClear;
-	private javax.swing.JButton butClearCardDataBase;
-	private javax.swing.JButton butClearTransactionDatabase;
-	private javax.swing.JButton butCloseAlarm;
-	private javax.swing.JButton butCloseDoor;
-	private javax.swing.JButton butCloseWatch;
-	private javax.swing.JButton butDeleteCard;
-	private javax.swing.JButton butDeleteCardByList;
-	private javax.swing.JButton butHoldDoor;
-	private javax.swing.JButton butLockDoor;
-	private javax.swing.JButton butOpenDoor;
-	private javax.swing.JButton butReadCardDataBase;
-	private javax.swing.JButton butReadCardDatabaseDetail;
-	private javax.swing.JButton butReadCardDetail;
-	private javax.swing.JButton butReadConnectPassword;
-	private javax.swing.JButton butReadSN;
-	private javax.swing.JButton butReadTCPSetting;
-	private javax.swing.JButton butReadTransactionDatabase;
-	private javax.swing.JButton butReadTransactionDatabaseByIndex;
-	private javax.swing.JButton butReadTransactionDatabaseDetail;
-	private javax.swing.JButton butReadVersion;
-	private javax.swing.JButton butResetConnectPassword;
-	private javax.swing.JButton butTransactionDatabaseEmpty;
-	private javax.swing.JButton butUnlockDoor;
-	private javax.swing.JButton butUploadCard;
-	private javax.swing.JButton butWriteCardListBySequence;
-	private javax.swing.JButton butWriteCardListBySort;
-	private javax.swing.JButton butWriteConnectPassword;
-	private javax.swing.JButton butWriteSN;
-	private javax.swing.JButton butWriteTCPSetting;
-	private javax.swing.JButton butWriteTransactionDatabaseReadIndex;
-	private javax.swing.JButton butWriteTransactionDatabaseWriteIndex;
-	private javax.swing.JCheckBox chkCardDoor1;
-	private javax.swing.JCheckBox chkCardDoor2;
-	private javax.swing.JCheckBox chkCardDoor3;
-	private javax.swing.JCheckBox chkCardDoor4;
-	private javax.swing.JCheckBox chkTransactionIsCircle;
-	private javax.swing.JComboBox<String> cmbCardDataBaseType;
-	private javax.swing.JComboBox<String> cmbCardStatus;
-	private javax.swing.JComboBox<String> cmbTransactionType;
-	private javax.swing.JButton jButton1;
-	private javax.swing.JButton jButton2;
-	private javax.swing.JComboBox<String> jComboBox1;
-	private javax.swing.JLabel jLabel1;
-	private javax.swing.JLabel jLabel10;
-	private javax.swing.JLabel jLabel11;
-	private javax.swing.JLabel jLabel12;
-	private javax.swing.JLabel jLabel13;
-	private javax.swing.JLabel jLabel14;
-	private javax.swing.JLabel jLabel15;
-	private javax.swing.JLabel jLabel16;
-	private javax.swing.JLabel jLabel17;
-	private javax.swing.JLabel jLabel18;
-	private javax.swing.JLabel jLabel19;
-	private javax.swing.JLabel jLabel2;
-	private javax.swing.JLabel jLabel20;
-	private javax.swing.JLabel jLabel21;
-	private javax.swing.JLabel jLabel22;
-	private javax.swing.JLabel jLabel23;
-	private javax.swing.JLabel jLabel24;
-	private javax.swing.JLabel jLabel25;
-	private javax.swing.JLabel jLabel3;
-	private javax.swing.JLabel jLabel4;
-	private javax.swing.JLabel jLabel5;
-	private javax.swing.JLabel jLabel6;
-	private javax.swing.JLabel jLabel7;
-	private javax.swing.JLabel jLabel8;
-	private javax.swing.JLabel jLabel9;
-	private javax.swing.JPanel jPanel1;
-	private javax.swing.JPanel jPanel2;
-	private javax.swing.JPanel jPanel3;
-	private javax.swing.JPanel jPanel4;
-	private javax.swing.JPanel jPanel5;
-	private javax.swing.JPanel jPanel6;
-	private javax.swing.JPanel jPanel8;
-	private javax.swing.JPanel jPanel9;
-	private javax.swing.JScrollPane jScrollPane1;
-	private javax.swing.JScrollPane jScrollPane2;
-	private javax.swing.JTabbedPane jTabSetting;
-	private javax.swing.JTextArea jTextArea1;
-	private javax.swing.JPanel jpConnectSetting;
-	private javax.swing.JScrollPane jpLog;
-	private javax.swing.JPanel jpSNDetail;
-	private javax.swing.JLabel lblCommandName;
-	private javax.swing.JLabel lblTime;
-	private javax.swing.JPanel pnlTCPClient;
-	private javax.swing.JPanel pnlTCPServer;
-	private javax.swing.JProgressBar prCommand;
-	private javax.swing.JTable tblCard;
-	private javax.swing.JTextField txtCardAutoCreateSzie;
-	private javax.swing.JTextField txtCardData;
-	private javax.swing.JTextField txtCardPassword;
-	private javax.swing.JTextField txtLocalPort;
-	private javax.swing.JTextArea txtLog;
-	private javax.swing.JTextField txtOpenTimes;
-	private javax.swing.JTextField txtPassword;
-	private javax.swing.JTextField txtReadTransactionDatabaseByIndex;
-	private javax.swing.JTextField txtReadTransactionDatabaseByQuantity;
-	private javax.swing.JTextField txtReadTransactionDatabasePacketSize;
-	private javax.swing.JTextField txtReadTransactionDatabaseQuantity;
-	private javax.swing.JTextField txtSN;
-	private javax.swing.JTextField txtTCPServerIP;
-	private javax.swing.JTextField txtTCPServerPort;
-	private javax.swing.JTextField txtTransactionDatabaseReadIndex;
-	private javax.swing.JTextField txtTransactionDatabaseWriteIndex;
-	private javax.swing.JTextField txtUDPRemoteIP;
-	private javax.swing.JTextField txtUDPRemotePort;
-	private javax.swing.JTextField txtWriteSN;
-	// End of variables declaration//GEN-END:variables
 	private CommandDetail getCommandDetail() {
 		CommandDetail detail = new CommandDetail();
 		String ip = "0", strPort = "0";
@@ -2473,7 +2518,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			ip = txtUDPRemoteIP.getText();
 			strPort = txtUDPRemotePort.getText();
 		}
-		int iPort = Integer.valueOf(strPort);
+		int iPort = Integer.parseInt(strPort);
 		if (ip.length() == 0) {
 			JOptionPane.showMessageDialog(null, "必须输入IP地址！", "错误", JOptionPane.ERROR_MESSAGE);
 			return null;
@@ -2512,140 +2557,140 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		 * }
 		 */
 	}
-	private void IniCommandName() {
-		if (CommandName.size() > 0) {
-			return;
-		}
-		CommandName.put(WriteSN.class.getName(), "写控制器SN");
-		CommandName.put(WriteSN_Broadcast.class.getName(), "通过广播写SN");
-		CommandName.put(ReadSN.class.getName(), "从控制器中读取SN");
-		CommandName.put(WriteConnectPassword.class.getName(), "修改控制器通讯密码");
-		CommandName.put(ReadConnectPassword.class.getName(), "从控制器中获取通讯密码");
-		CommandName.put(ResetConnectPassword.class.getName(), "重置控制器通讯密码");
-		CommandName.put(ReadTCPSetting.class.getName(), "读取控制器TCP网络参数");
-		CommandName.put(WriteTCPSetting.class.getName(), "修改控制器TCP网络参数");
-		CommandName.put(ReadDeadline.class.getName(), "读取控制器有效期剩余天数");
-		CommandName.put(WriteDeadline.class.getName(), "写入控制器有效期");
-		CommandName.put(ReadVersion.class.getName(), "获取控制器版本号");
-		CommandName.put(ReadSystemStatus.class.getName(), "读取设备运行信息");
-		CommandName.put(ReadAllSystemSetting.class.getName(), "获取所有系统参数");
-		CommandName.put(ReadRecordMode.class.getName(), "读取记录存储方式");
-		CommandName.put(WriteRecordMode.class.getName(), "写入记录存储方式");
-		CommandName.put(ReadKeyboard.class.getName(), "读取读卡器密码键盘启用功能开关");
-		CommandName.put(WriteKeyboard.class.getName(), "写入读卡器密码键盘启用功能开关");
-		CommandName.put(ReadLockInteraction.class.getName(), "读取互锁功能开关");
-		CommandName.put(WriteLockInteraction.class.getName(), "写入互锁功能开关");
-		CommandName.put(ReadFireAlarmOption.class.getName(), "读取消防报警功能参数");
-		CommandName.put(WriteFireAlarmOption.class.getName(), "写入消防报警功能参数");
-		CommandName.put(ReadOpenAlarmOption.class.getName(), "读取匪警报警功能参数");
-		CommandName.put(WriteOpenAlarmOption.class.getName(), "写入匪警报警功能参数");
-		CommandName.put(ReadReaderIntervalTime.class.getName(), "读取读卡间隔时间参数");
-		CommandName.put(WriteReaderIntervalTime.class.getName(), "写入读卡间隔时间参数");
-		CommandName.put(ReadBroadcast.class.getName(), "读取语音段开关参数");
-		CommandName.put(WriteBroadcast.class.getName(), "写入语音段开关参数");
-		CommandName.put(ReadReaderCheckMode.class.getName(), "读取读卡器校验参数");
-		CommandName.put(WriteReaderCheckMode.class.getName(), "写入读卡器校验参数");
-		CommandName.put(ReadBuzzer.class.getName(), "读取主板蜂鸣器参数");
-		CommandName.put(WriteBuzzer.class.getName(), "写入主板蜂鸣器参数");
-		CommandName.put(ReadSmogAlarmOption.class.getName(), "读取烟雾报警功能参数");
-		CommandName.put(WriteSmogAlarmOption.class.getName(), "写入烟雾报警功能参数");
-		CommandName.put(ReadEnterDoorLimit.class.getName(), "读取门内人数上限参数");
-		CommandName.put(WriteEnterDoorLimit.class.getName(), "写入门内人数上限参数");
-		CommandName.put(ReadTheftAlarmSetting.class.getName(), "读取智能防盗主机参数");
-		CommandName.put(WriteTheftAlarmSetting.class.getName(), "写入智能防盗主机参数");
-		CommandName.put(ReadCheckInOut.class.getName(), "读取防潜回参数");
-		CommandName.put(WriteCheckInOut.class.getName(), "写入防潜回参数");
-		CommandName.put(ReadCardPeriodSpeak.class.getName(), "读取卡片到期提示参数");
-		CommandName.put(WriteCardPeriodSpeak.class.getName(), "写入卡片到期提示参数");
-		CommandName.put(ReadReadCardSpeak.class.getName(), "读取定时读卡播报语音参数");
-		CommandName.put(WriteReadCardSpeak.class.getName(), "写入定时读卡播报语音参数");
-		CommandName.put(BeginWatch.class.getName(), "开始数据监控");
-		CommandName.put(BeginWatch_Broadcast.class.getName(), "广播开启监控");
-		CommandName.put(CloseWatch.class.getName(), "关闭数据监控");
-		CommandName.put(CloseWatch_Broadcast.class.getName(), "广播关闭监控");
-		CommandName.put(SendFireAlarm.class.getName(), "通知设备触发消防报警");
-		CommandName.put(CloseFireAlarm.class.getName(), "解除消防报警");
-		CommandName.put(ReadFireAlarmState.class.getName(), "读取消防报警状态");
-		CommandName.put(SendSmogAlarm.class.getName(), "通知设备触发烟雾报警");
-		CommandName.put(CloseSmogAlarm.class.getName(), "解除烟雾报警");
-		CommandName.put(ReadSmogAlarmState.class.getName(), "获取烟雾报警状态");
-		CommandName.put(CloseAlarm.class.getName(), "解除报警");
-		CommandName.put(ReadWorkStatus.class.getName(), "获取控制器各端口工作状态信息");
-		CommandName.put(ReadTheftAlarmState.class.getName(), "获取防盗主机布防状态");
-		CommandName.put(FormatController.class.getName(), "初始化控制器");
-		CommandName.put(SearchEquptOnNetNum.class.getName(), "搜索控制器");
-		CommandName.put(WriteEquptNetNum.class.getName(), "根据SN设置网络标记");
-		CommandName.put(WriteKeepAliveInterval.class.getName(), "写入保活间隔时间");
-		CommandName.put(ReadKeepAliveInterval.class.getName(), "读取保活间隔时间");
-		CommandName.put(SetTheftDisarming.class.getName(), "防盗报警撤防");
-		CommandName.put(SetTheftFortify.class.getName(), "防盗报警布防");
-		CommandName.put(WriteBalcklistAlarmOption.class.getName(), "写入黑名单报警功能开关");
-		CommandName.put(ReadBalcklistAlarmOption.class.getName(), "读取黑名单报警功能开关");
-		CommandName.put(ReadExploreLockMode.class.getName(), "读取防探测功能开关");
-		CommandName.put(WriteExploreLockMode.class.getName(), "写入防探测功能开关");
-		CommandName.put(ReadCheck485Line.class.getName(), "读取485线路反接检测开关");
-		CommandName.put(WriteCheck485Line.class.getName(), "写入485线路反接检测开关");
-		CommandName.put(ReadCardDeadlineTipDay.class.getName(), "读取有效期即将过期提醒时间");
-		CommandName.put(WriteCardDeadlineTipDay.class.getName(), "写入有效期即将过期提醒时间");
-		CommandName.put(ReadTime.class.getName(), "从控制器中读取控制器时间");
-		CommandName.put(WriteTime.class.getName(), "将电脑的最新时间写入到控制器中");
-		CommandName.put(WriteTimeBroadcast.class.getName(), "校时广播");
-		CommandName.put(WriteTimeDefine.class.getName(), "写入自定义时间到控制器");
-		CommandName.put(WriteReaderOption.class.getName(), "写入控制器4个门的读卡器字节数");
-		CommandName.put(ReadReaderOption.class.getName(), "读取控制器4个门的读卡器字节数");
-		CommandName.put(ReadRelayOption.class.getName(), "读取控制器继电器参数");
-		CommandName.put(WriteRelayOption.class.getName(), "写入控制器继电器参数");
-		CommandName.put(OpenDoor.class.getName(), "远程开门指令");
-		CommandName.put(CloseDoor.class.getName(), "远程关门指令");
-		CommandName.put(HoldDoor.class.getName(), "远程保持门常开");
-		CommandName.put(LockDoor.class.getName(), "远程锁定门");
-		CommandName.put(UnlockDoor.class.getName(), "远程解除门锁定状态");
-		CommandName.put(ReadReaderWorkSetting.class.getName(), "读取门的读卡器验证方式参数");
-		CommandName.put(WriteReaderWorkSetting.class.getName(), "设置门的读卡器验证方式参数");
-		CommandName.put(ReadDoorWorkSetting.class.getName(), "读取门的工作模式");
-		CommandName.put(WriteDoorWorkSetting.class.getName(), "写入门的工作模式");
-		CommandName.put(ReadAutoLockedSetting.class.getName(), "读取定时锁定门");
-		CommandName.put(WriteAutoLockedSetting.class.getName(), "写入定时锁定门");
-		CommandName.put(ReadRelayReleaseTime.class.getName(), "读取开门保持时间");
-		CommandName.put(WriteRelayReleaseTime.class.getName(), "写入开门保持时间");
-		CommandName.put(ReadReaderInterval.class.getName(), "读取重复读卡间隔");
-		CommandName.put(WriteReaderInterval.class.getName(), "写入重复读卡间隔");
-		CommandName.put(ReadInvalidCardAlarmOption.class.getName(), "读取未注册卡读卡时报警功能");
-		CommandName.put(WriteInvalidCardAlarmOption.class.getName(), "写入未注册卡读卡时报警功能");
-		CommandName.put(ReadAlarmPassword.class.getName(), "读取胁迫报警功能");
-		CommandName.put(WriteAlarmPassword.class.getName(), "写入胁迫报警功能");
-		CommandName.put(ReadAntiPassback.class.getName(), "读取防潜返");
-		CommandName.put(WriteAntiPassback.class.getName(), "写入防潜返");
-		CommandName.put(WriteOvertimeAlarmSetting.class.getName(), "写入开门超时报警功能");
-		CommandName.put(ReadOvertimeAlarmSetting.class.getName(), "读取开门超时报警功能");
-		CommandName.put(WritePushButtonSetting.class.getName(), "写入出门按钮功能");
-		CommandName.put(ReadPushButtonSetting.class.getName(), "读取出门按钮功能");
-		CommandName.put(ReadSensorAlarmSetting.class.getName(), "读取门磁报警功能");
-		CommandName.put(WriteSensorAlarmSetting.class.getName(), "写入门磁报警功能");
-		CommandName.put(ReadAnyCardSetting.class.getName(), "读取全卡开门功能");
-		CommandName.put(WriteAnyCardSetting.class.getName(), "写入全卡开门功能");
-		CommandName.put(ReadReadingBroadcast.class.getName(), "");
-		CommandName.put(WriteReadingBroadcast.class.getName(), "");
-		CommandName.put(ReadCardDatabaseDetail.class.getName(), "读取控制器中的卡片数据库信息");
-		CommandName.put(ClearCardDataBase.class.getName(), "清空卡片数据库");
-		CommandName.put(ReadCardDataBase.class.getName(), "从控制器中读取卡片数据");
-		CommandName.put(ReadCardDetail.class.getName(), "读取单个卡片在控制器中的信息");
-		CommandName.put(WriteCardListBySequence.class.getName(), "将卡片列表写入到控制器非排序区");
-		CommandName.put(Net.PC15.FC89H.Command.Card.WriteCardListBySequence.class.getName(), "将卡片列表写入到控制器非排序区");
-		CommandName.put(WriteCardListBySort.class.getName(), "将卡片列表写入到控制器排序区");
-		CommandName.put(Net.PC15.FC89H.Command.Card.WriteCardListBySort.class.getName(), "将卡片列表写入到控制器排序区");
-		CommandName.put(DeleteCard.class.getName(), "删除卡片");
-		CommandName.put(Net.PC15.FC89H.Command.Card.DeleteCard.class.getName(), "删除卡片");
-		CommandName.put(ReadTransactionDatabaseDetail.class.getName(), "读取控制器中的卡片数据库信息");
-		CommandName.put(TransactionDatabaseEmpty.class.getName(), "清空所有类型的记录数据库");
-		CommandName.put(ClearTransactionDatabase.class.getName(), "清空指定类型的记录数据库");
-		CommandName.put(WriteTransactionDatabaseReadIndex.class.getName(), "修改指定记录数据库的读索引");
-		CommandName.put(WriteTransactionDatabaseWriteIndex.class.getName(), "修改指定记录数据库的写索引");
-		CommandName.put(ReadTransactionDatabaseByIndex.class.getName(), "读取记录");
-		CommandName.put(ReadTransactionDatabase.class.getName(), "读取新记录");
-		CommandName.put(Net.PC15.FC89H.Command.Transaction.ReadTransactionDatabaseByIndex.class.getName(), "读取记录");
-		CommandName.put(Net.PC15.FC89H.Command.Transaction.ReadTransactionDatabase.class.getName(), "读取新记录");
-	}
+	//	private void iniCommandName() {
+	//		if (CommandName.size() > 0) {
+	//			return;
+	//		}
+	//		CommandName.put(WriteSN.class.getName(), "写控制器SN");
+	//		CommandName.put(WriteSN_Broadcast.class.getName(), "通过广播写SN");
+	//		CommandName.put(ReadSN.class.getName(), "从控制器中读取SN");
+	//		CommandName.put(WriteConnectPassword.class.getName(), "修改控制器通讯密码");
+	//		CommandName.put(ReadConnectPassword.class.getName(), "从控制器中获取通讯密码");
+	//		CommandName.put(ResetConnectPassword.class.getName(), "重置控制器通讯密码");
+	//		CommandName.put(ReadTCPSetting.class.getName(), "读取控制器TCP网络参数");
+	//		CommandName.put(WriteTCPSetting.class.getName(), "修改控制器TCP网络参数");
+	//		CommandName.put(ReadDeadline.class.getName(), "读取控制器有效期剩余天数");
+	//		CommandName.put(WriteDeadline.class.getName(), "写入控制器有效期");
+	//		CommandName.put(ReadVersion.class.getName(), "获取控制器版本号");
+	//		CommandName.put(ReadSystemStatus.class.getName(), "读取设备运行信息");
+	//		CommandName.put(ReadAllSystemSetting.class.getName(), "获取所有系统参数");
+	//		CommandName.put(ReadRecordMode.class.getName(), "读取记录存储方式");
+	//		CommandName.put(WriteRecordMode.class.getName(), "写入记录存储方式");
+	//		CommandName.put(ReadKeyboard.class.getName(), "读取读卡器密码键盘启用功能开关");
+	//		CommandName.put(WriteKeyboard.class.getName(), "写入读卡器密码键盘启用功能开关");
+	//		CommandName.put(ReadLockInteraction.class.getName(), "读取互锁功能开关");
+	//		CommandName.put(WriteLockInteraction.class.getName(), "写入互锁功能开关");
+	//		CommandName.put(ReadFireAlarmOption.class.getName(), "读取消防报警功能参数");
+	//		CommandName.put(WriteFireAlarmOption.class.getName(), "写入消防报警功能参数");
+	//		CommandName.put(ReadOpenAlarmOption.class.getName(), "读取匪警报警功能参数");
+	//		CommandName.put(WriteOpenAlarmOption.class.getName(), "写入匪警报警功能参数");
+	//		CommandName.put(ReadReaderIntervalTime.class.getName(), "读取读卡间隔时间参数");
+	//		CommandName.put(WriteReaderIntervalTime.class.getName(), "写入读卡间隔时间参数");
+	//		CommandName.put(ReadBroadcast.class.getName(), "读取语音段开关参数");
+	//		CommandName.put(WriteBroadcast.class.getName(), "写入语音段开关参数");
+	//		CommandName.put(ReadReaderCheckMode.class.getName(), "读取读卡器校验参数");
+	//		CommandName.put(WriteReaderCheckMode.class.getName(), "写入读卡器校验参数");
+	//		CommandName.put(ReadBuzzer.class.getName(), "读取主板蜂鸣器参数");
+	//		CommandName.put(WriteBuzzer.class.getName(), "写入主板蜂鸣器参数");
+	//		CommandName.put(ReadSmogAlarmOption.class.getName(), "读取烟雾报警功能参数");
+	//		CommandName.put(WriteSmogAlarmOption.class.getName(), "写入烟雾报警功能参数");
+	//		CommandName.put(ReadEnterDoorLimit.class.getName(), "读取门内人数上限参数");
+	//		CommandName.put(WriteEnterDoorLimit.class.getName(), "写入门内人数上限参数");
+	//		CommandName.put(ReadTheftAlarmSetting.class.getName(), "读取智能防盗主机参数");
+	//		CommandName.put(WriteTheftAlarmSetting.class.getName(), "写入智能防盗主机参数");
+	//		CommandName.put(ReadCheckInOut.class.getName(), "读取防潜回参数");
+	//		CommandName.put(WriteCheckInOut.class.getName(), "写入防潜回参数");
+	//		CommandName.put(ReadCardPeriodSpeak.class.getName(), "读取卡片到期提示参数");
+	//		CommandName.put(WriteCardPeriodSpeak.class.getName(), "写入卡片到期提示参数");
+	//		CommandName.put(ReadReadCardSpeak.class.getName(), "读取定时读卡播报语音参数");
+	//		CommandName.put(WriteReadCardSpeak.class.getName(), "写入定时读卡播报语音参数");
+	//		CommandName.put(BeginWatch.class.getName(), "开始数据监控");
+	//		CommandName.put(BeginWatch_Broadcast.class.getName(), "广播开启监控");
+	//		CommandName.put(CloseWatch.class.getName(), "关闭数据监控");
+	//		CommandName.put(CloseWatch_Broadcast.class.getName(), "广播关闭监控");
+	//		CommandName.put(SendFireAlarm.class.getName(), "通知设备触发消防报警");
+	//		CommandName.put(CloseFireAlarm.class.getName(), "解除消防报警");
+	//		CommandName.put(ReadFireAlarmState.class.getName(), "读取消防报警状态");
+	//		CommandName.put(SendSmogAlarm.class.getName(), "通知设备触发烟雾报警");
+	//		CommandName.put(CloseSmogAlarm.class.getName(), "解除烟雾报警");
+	//		CommandName.put(ReadSmogAlarmState.class.getName(), "获取烟雾报警状态");
+	//		CommandName.put(CloseAlarm.class.getName(), "解除报警");
+	//		CommandName.put(ReadWorkStatus.class.getName(), "获取控制器各端口工作状态信息");
+	//		CommandName.put(ReadTheftAlarmState.class.getName(), "获取防盗主机布防状态");
+	//		CommandName.put(FormatController.class.getName(), "初始化控制器");
+	//		CommandName.put(SearchEquptOnNetNum.class.getName(), "搜索控制器");
+	//		CommandName.put(WriteEquptNetNum.class.getName(), "根据SN设置网络标记");
+	//		CommandName.put(WriteKeepAliveInterval.class.getName(), "写入保活间隔时间");
+	//		CommandName.put(ReadKeepAliveInterval.class.getName(), "读取保活间隔时间");
+	//		CommandName.put(SetTheftDisarming.class.getName(), "防盗报警撤防");
+	//		CommandName.put(SetTheftFortify.class.getName(), "防盗报警布防");
+	//		CommandName.put(WriteBalcklistAlarmOption.class.getName(), "写入黑名单报警功能开关");
+	//		CommandName.put(ReadBalcklistAlarmOption.class.getName(), "读取黑名单报警功能开关");
+	//		CommandName.put(ReadExploreLockMode.class.getName(), "读取防探测功能开关");
+	//		CommandName.put(WriteExploreLockMode.class.getName(), "写入防探测功能开关");
+	//		CommandName.put(ReadCheck485Line.class.getName(), "读取485线路反接检测开关");
+	//		CommandName.put(WriteCheck485Line.class.getName(), "写入485线路反接检测开关");
+	//		CommandName.put(ReadCardDeadlineTipDay.class.getName(), "读取有效期即将过期提醒时间");
+	//		CommandName.put(WriteCardDeadlineTipDay.class.getName(), "写入有效期即将过期提醒时间");
+	//		CommandName.put(ReadTime.class.getName(), "从控制器中读取控制器时间");
+	//		CommandName.put(WriteTime.class.getName(), "将电脑的最新时间写入到控制器中");
+	//		CommandName.put(WriteTimeBroadcast.class.getName(), "校时广播");
+	//		CommandName.put(WriteTimeDefine.class.getName(), "写入自定义时间到控制器");
+	//		CommandName.put(WriteReaderOption.class.getName(), "写入控制器4个门的读卡器字节数");
+	//		CommandName.put(ReadReaderOption.class.getName(), "读取控制器4个门的读卡器字节数");
+	//		CommandName.put(ReadRelayOption.class.getName(), "读取控制器继电器参数");
+	//		CommandName.put(WriteRelayOption.class.getName(), "写入控制器继电器参数");
+	//		CommandName.put(OpenDoor.class.getName(), "远程开门指令");
+	//		CommandName.put(CloseDoor.class.getName(), "远程关门指令");
+	//		CommandName.put(HoldDoor.class.getName(), "远程保持门常开");
+	//		CommandName.put(LockDoor.class.getName(), "远程锁定门");
+	//		CommandName.put(UnlockDoor.class.getName(), "远程解除门锁定状态");
+	//		CommandName.put(ReadReaderWorkSetting.class.getName(), "读取门的读卡器验证方式参数");
+	//		CommandName.put(WriteReaderWorkSetting.class.getName(), "设置门的读卡器验证方式参数");
+	//		CommandName.put(ReadDoorWorkSetting.class.getName(), "读取门的工作模式");
+	//		CommandName.put(WriteDoorWorkSetting.class.getName(), "写入门的工作模式");
+	//		CommandName.put(ReadAutoLockedSetting.class.getName(), "读取定时锁定门");
+	//		CommandName.put(WriteAutoLockedSetting.class.getName(), "写入定时锁定门");
+	//		CommandName.put(ReadRelayReleaseTime.class.getName(), "读取开门保持时间");
+	//		CommandName.put(WriteRelayReleaseTime.class.getName(), "写入开门保持时间");
+	//		CommandName.put(ReadReaderInterval.class.getName(), "读取重复读卡间隔");
+	//		CommandName.put(WriteReaderInterval.class.getName(), "写入重复读卡间隔");
+	//		CommandName.put(ReadInvalidCardAlarmOption.class.getName(), "读取未注册卡读卡时报警功能");
+	//		CommandName.put(WriteInvalidCardAlarmOption.class.getName(), "写入未注册卡读卡时报警功能");
+	//		CommandName.put(ReadAlarmPassword.class.getName(), "读取胁迫报警功能");
+	//		CommandName.put(WriteAlarmPassword.class.getName(), "写入胁迫报警功能");
+	//		CommandName.put(ReadAntiPassback.class.getName(), "读取防潜返");
+	//		CommandName.put(WriteAntiPassback.class.getName(), "写入防潜返");
+	//		CommandName.put(WriteOvertimeAlarmSetting.class.getName(), "写入开门超时报警功能");
+	//		CommandName.put(ReadOvertimeAlarmSetting.class.getName(), "读取开门超时报警功能");
+	//		CommandName.put(WritePushButtonSetting.class.getName(), "写入出门按钮功能");
+	//		CommandName.put(ReadPushButtonSetting.class.getName(), "读取出门按钮功能");
+	//		CommandName.put(ReadSensorAlarmSetting.class.getName(), "读取门磁报警功能");
+	//		CommandName.put(WriteSensorAlarmSetting.class.getName(), "写入门磁报警功能");
+	//		CommandName.put(ReadAnyCardSetting.class.getName(), "读取全卡开门功能");
+	//		CommandName.put(WriteAnyCardSetting.class.getName(), "写入全卡开门功能");
+	//		CommandName.put(ReadReadingBroadcast.class.getName(), "");
+	//		CommandName.put(WriteReadingBroadcast.class.getName(), "");
+	//		CommandName.put(ReadCardDatabaseDetail.class.getName(), "读取控制器中的卡片数据库信息");
+	//		CommandName.put(ClearCardDataBase.class.getName(), "清空卡片数据库");
+	//		CommandName.put(ReadCardDataBase.class.getName(), "从控制器中读取卡片数据");
+	//		CommandName.put(ReadCardDetail.class.getName(), "读取单个卡片在控制器中的信息");
+	//		CommandName.put(WriteCardListBySequence.class.getName(), "将卡片列表写入到控制器非排序区");
+	//		CommandName.put(Net.PC15.FC89H.Command.Card.WriteCardListBySequence.class.getName(), "将卡片列表写入到控制器非排序区");
+	//		CommandName.put(WriteCardListBySort.class.getName(), "将卡片列表写入到控制器排序区");
+	//		CommandName.put(Net.PC15.FC89H.Command.Card.WriteCardListBySort.class.getName(), "将卡片列表写入到控制器排序区");
+	//		CommandName.put(DeleteCard.class.getName(), "删除卡片");
+	//		CommandName.put(Net.PC15.FC89H.Command.Card.DeleteCard.class.getName(), "删除卡片");
+	//		CommandName.put(ReadTransactionDatabaseDetail.class.getName(), "读取控制器中的卡片数据库信息");
+	//		CommandName.put(TransactionDatabaseEmpty.class.getName(), "清空所有类型的记录数据库");
+	//		CommandName.put(ClearTransactionDatabase.class.getName(), "清空指定类型的记录数据库");
+	//		CommandName.put(WriteTransactionDatabaseReadIndex.class.getName(), "修改指定记录数据库的读索引");
+	//		CommandName.put(WriteTransactionDatabaseWriteIndex.class.getName(), "修改指定记录数据库的写索引");
+	//		CommandName.put(ReadTransactionDatabaseByIndex.class.getName(), "读取记录");
+	//		CommandName.put(ReadTransactionDatabase.class.getName(), "读取新记录");
+	//		CommandName.put(Net.PC15.FC89H.Command.Transaction.ReadTransactionDatabaseByIndex.class.getName(), "读取记录");
+	//		CommandName.put(Net.PC15.FC89H.Command.Transaction.ReadTransactionDatabase.class.getName(), "读取新记录");
+	//	}
 	@Override
 	public void CommandCompleteEvent(INCommand cmd, INCommandResult result) {
 		try {
@@ -2659,17 +2704,19 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			else {
 				strBuf.append("命令处理完毕!");
 			}
-			AddLog(strBuf.toString());
+			// FormUtils.AddLog(strBuf.toString(),strLog,txtLog);
+			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.CommandCompleteEvent() -- 发生错误：" + e.toString());
+			// System.out.println("fcardiodemo.FormMain.CommandCompleteEvent() -- 发生错误：" + e.toString());
+			Logger.getRootLogger().error("fcardiodemo.FormMain.CommandCompleteEvent() -- 发生错误：" + e);
 		}
 	}
 	@Override
 	public void CommandProcessEvent(INCommand cmd) {
 		try {
-			// lblCommandName.setText("当前命令：" + GetCommandName(cmd) + "\n正在处理" );
+			// lblCommandName.setText("当前命令：" + GetCommandName(cmd) + "正在处理" );
 			StringBuilder strBuf = new StringBuilder(100);
 			strBuf.append("<html>");
 			strBuf.append("当前命令：");
@@ -2689,7 +2736,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.CommandProcessEvent() -- 发生错误：" + e.toString());
+			System.out.println("fcardiodemo.FormMain.CommandProcessEvent() -- 发生错误：" + e.toString());
 		}
 	}
 	@Override
@@ -2703,11 +2750,11 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			else {
 				strBuf.append("网络连接失败!");
 			}
-			AddLog(strBuf.toString());
+			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.ConnectorErrorEvent() --- " + e.toString());
+			System.out.println("fcardiodemo.FormMain.ConnectorErrorEvent() --- " + e.toString());
 		}
 	}
 	@Override
@@ -2716,11 +2763,11 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			StringBuilder strBuf = new StringBuilder(100);
 			strBuf.append("网络通道故障，IP信息：");
 			GetConnectorDetail(strBuf, detail);
-			AddLog(strBuf.toString());
+			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.ConnectorErrorEvent() -- " + e.toString());
+			System.out.println("fcardiodemo.FormMain.ConnectorErrorEvent() -- " + e.toString());
 		}
 	}
 	@Override
@@ -2733,11 +2780,11 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			StringBuilder strBuf = new StringBuilder(100);
 			GetCommandDetail(strBuf, cmd);
 			strBuf.append("命令超时，已失败！");
-			AddLog(strBuf.toString());
+			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.CommandTimeout() -- " + e.toString());
+			System.out.println("fcardiodemo.FormMain.CommandTimeout() -- " + e.toString());
 		}
 	}
 	@Override
@@ -2746,11 +2793,11 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			StringBuilder strBuf = new StringBuilder(100);
 			GetCommandDetail(strBuf, cmd);
 			strBuf.append("通讯密码错误，已失败！");
-			AddLog(strBuf.toString());
+			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.PasswordErrorEvent() -- " + e.toString());
+			System.out.println("fcardiodemo.FormMain.PasswordErrorEvent() -- " + e.toString());
 		}
 	}
 	@Override
@@ -2759,11 +2806,11 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			StringBuilder strBuf = new StringBuilder(100);
 			GetCommandDetail(strBuf, cmd);
 			strBuf.append("命令返回的校验和错误，已失败！");
-			AddLog(strBuf.toString());
+			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.ChecksumErrorEvent() -- " + e.toString());
+			System.out.println("fcardiodemo.FormMain.ChecksumErrorEvent() -- " + e.toString());
 		}
 	}
 	@Override
@@ -2776,18 +2823,18 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 				FC8800WatchTransaction WatchTransaction = (FC8800WatchTransaction) event;
 				strBuf.append("，SN：");
 				strBuf.append(WatchTransaction.SN);
-				strBuf.append("\n");
+				strBuf.append("");
 				PrintWatchEvent(WatchTransaction, strBuf);
 			}
 			else {
 				strBuf.append("，未知事件：");
 				strBuf.append(event.getClass().getName());
 			}
-			AddLog(strBuf.toString());
+			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.frmMain.WatchEvent() -- " + e.toString());
+			System.out.println("fcardiodemo.FormMain.WatchEvent() -- " + e.toString());
 		}
 	}
 	private String[] mWatchTypeNameList;
@@ -2943,7 +2990,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		}
 		int code = Transaction.TransactionCode();
 		String sCode = null;
-		strBuf.append("\n消息代码：");// 类型
+		strBuf.append("消息代码：");// 类型
 		strBuf.append(code);
 		if (code < 255) {
 			sCode = sTransactionList[code];
@@ -2965,7 +3012,7 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		}
 		if (Transaction instanceof CardTransaction) {
 			CardTransaction cardTrn = (CardTransaction) WatchTransaction.EventData;
-			strBuf.append("\n卡号：");
+			strBuf.append("卡号：");
 			strBuf.append(cardTrn.CardData);
 			strBuf.append("，门号：");
 			strBuf.append(cardTrn.DoorNum());
@@ -3006,7 +3053,6 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 				logTransaction(WatchTransaction, strBuf, null);
 		}
 	}
-	private StringBuilder strLog;
 	private void GetCommandDetail(StringBuilder strBuf, INCommand cmd) {
 		if (cmd == null) {
 			strBuf.append("命令类型：null");
@@ -3021,19 +3067,14 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 			strBuf.append(",");
 			GetConnectorDetail(strBuf, det.Connector);
 		}
-		strBuf.append("\n");
+		strBuf.append("");
 	}
 	private String GetCommandName(INCommand cmd) {
 		if (cmd == null) {
 			return "null";
 		}
 		String sKey = cmd.getClass().getName();
-		if (CommandName.containsKey(sKey)) {
-			return CommandName.get(sKey);
-		}
-		else {
-			return sKey;
-		}
+		return FormUtils.CommandName.getOrDefault(sKey, sKey);
 	}
 	private void GetConnectorDetail(StringBuilder strBuf, ConnectorDetail conn) {
 		if (conn == null) {
@@ -3056,20 +3097,19 @@ public class frmMain extends javax.swing.JFrame implements INConnectorEvent {
 		}
 		// strBuf.append(",");
 	}
-	private void AddLog(String log) {
-		synchronized (strLog) {
-			// 设置日期格式
-			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-			strLog.append(df.format(new Date()));
-			strLog.append(":");
-			strLog.append(log);
-			strLog.append("\n");
-			String txt = strLog.toString();
-			System.out.println("fcardiodemo.frmMain.AddLog() + " + txt);
-			txtLog.setText(txt);
-			if (strLog.length() > 50000) {
-				strLog.delete(0, 30000);
-			}
-		}
-	}
+	//	private void AddLog(String log) {
+	//		synchronized (strLog) {
+	//			// 设置日期格式
+	//			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+	//			strLog.append(df.format(new Date()));
+	//			strLog.append(":");
+	//			strLog.append(log);
+	//			String txt = strLog.toString() ;
+	//			Logger.getRootLogger().info("fcardiodemo.FormMain.AddLog() + " + txt);
+	//			txtLog.setText(txt);
+	//			if (strLog.length() > 50000) {
+	//				strLog.delete(0, 30000);
+	//			}
+	//		}
+	//	}
 }

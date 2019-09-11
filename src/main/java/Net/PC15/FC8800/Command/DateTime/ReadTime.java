@@ -7,17 +7,23 @@ import Net.PC15.FC8800.Command.DateTime.Result.ReadTime_Result;
 import Net.PC15.FC8800.Packet.FC8800PacketModel;
 import Net.PC15.Util.TimeUtil;
 import io.netty.buffer.ByteBuf;
+import org.apache.log4j.Logger;
+
 import java.util.Calendar;
 
 public class ReadTime extends FC8800Command {
+   private static final Logger myLog = Logger.getLogger(ReadTime.class);
    public ReadTime(CommandParameter par) {
       this._Parameter = par;
       this.CreatePacket(2, 1);
    }
 
+   @Override
    protected void Release0() {
+      myLog.info("read0");
    }
 
+   @Override
    protected boolean _CommandStep(INConnectorEvent oEvent, FC8800PacketModel model) {
       if (this.CheckResponse_Cmd(model, 2, 1, 0, 7)) {
          ByteBuf buf = model.GetDatabuff();
