@@ -18,14 +18,14 @@ public class BootstrapMain {
 			@Override
 			public void run() {
 				try {
-					//设置本属性将改变窗口边框样式定义
+					// 设置本属性将改变窗口边框样式定义
 					BeautyEyeLNFHelper.frameBorderStyle = BeautyEyeLNFHelper.FrameBorderStyle.osLookAndFeelDecorated;
 					org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
 					// org.jb2011.lnf.beautyeye.BeautyEyeLookAndFeelWin.setMnemonicHidden(true);
 					// 设置此开关量为false即表⽰示关闭之，BeautyEye LNF中默认是true
-					//					BeautyEyeLNFHelper.translucencyAtFrameInactive = false;
-					//					UIManager.put("RootPane.setupButtonVisible", true);
-					//					BeautyEyeLNFHelper.commonBackgroundColor.darker();
+					//	BeautyEyeLNFHelper.translucencyAtFrameInactive = false;
+					//	UIManager.put("RootPane.setupButtonVisible", true);
+					//	BeautyEyeLNFHelper.commonBackgroundColor.darker();
 					new FormMain().setVisible(true);
 				}
 				catch (Exception e) {

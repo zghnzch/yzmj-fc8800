@@ -76,7 +76,7 @@ public class FormMainFunctionUtils {
 			return;
 		}
 		dt.Timeout = 1000;
-		int type = FormMain.cmbTransactionType.getSelectedIndex() + 1;
+		int type = cmbTransactionType.getSelectedIndex() + 1;
 		String strPacketSize = txtReadTransactionDatabasePacketSize.getText();
 		if (!StringUtil.IsNum(strPacketSize) || strPacketSize.length() > 3) {
 			JOptionPane.showMessageDialog(null, "单次读取数量必须为数字，取值范围1-300！", "卡片管理", JOptionPane.ERROR_MESSAGE);
