@@ -15,14 +15,17 @@ public class FC8800Identity implements INIdentity {
       this.SetType(type);
    }
 
+   @Override
    public String GetPassword() {
       return this.mPassword;
    }
 
+   @Override
    public String GetIdentity() {
       return this.mSN;
    }
 
+   @Override
    public E_ControllerType GetIdentityType() {
       return this.mType;
    }
@@ -51,6 +54,7 @@ public class FC8800Identity implements INIdentity {
       return this.mSN;
    }
 
+   @Override
    public boolean equals(INIdentity dec) {
       if (dec == null) {
          return false;
