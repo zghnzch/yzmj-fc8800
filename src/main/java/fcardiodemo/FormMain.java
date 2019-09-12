@@ -916,7 +916,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		pnlTCPServer.setVisible(true);
 	}
 	private void setTimeThread() {
-		ExecutorService executorService = ThreadPoolUtils.newDaemonSingleThreadExecutor("set time to label");
+		ExecutorService executorService = ThreadPoolUtils.newDaemonMultipleThreadExecutor("set time to label");
 		if (executorService != null) {
 			executorService.execute(new Runnable() {
 				@Override

@@ -62,6 +62,21 @@ public class ThreadPoolUtils {
 		return pool;
 	}
 	/**
+	 * Wrapper over newSingleThreadExecutor.
+	 */
+	public static ExecutorService newDaemonMultipleThreadExecutor(String threadName) {
+		ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat(String.format("demo-pool-%s",threadName)).build();
+		//Common Thread Pool
+		ExecutorService pool = new ThreadPoolExecutor(50, 800, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+		//  pool.execute(()-> System.out.println(Thread.currentThread().getName()));
+		//gracefully shutdown
+		//  关闭 pool.shutdown()
+		if (pool.isShutdown()) {
+			return null;
+		}
+		return pool;
+	}
+	/**
 	 * Wrapper over newSingleThreadScheduledExecutor.
 	 */
 	public static ScheduledExecutorService newDaemonSingleThreadScheduledExecutor(String threadName) {
@@ -73,13 +88,3 @@ public class ThreadPoolUtils {
 		return pool;
 	}
 }
-//	ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-//			.setNameFormat("demo-pool-%d").build();
-//
-//	//Common Thread Pool
-//	ExecutorService pool = new ThreadPoolExecutor(5, 200,
-//			0L, TimeUnit.MILLISECONDS,
-//			new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-//
-//    pool.execute(()-> System.out.println(Thread.currentThread().getName()));
-//		    pool.shutdown();//gracefully shutdown
