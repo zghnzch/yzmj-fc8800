@@ -7,7 +7,7 @@ import Net.PC15.FC8800.Command.DateTime.WriteTimeDefine;
 import Net.PC15.FC8800.Command.Door.*;
 import Net.PC15.FC8800.Command.System.*;
 import Net.PC15.FC8800.Command.Transaction.*;
-import fcardutils.StringUtil;
+import fcardutils.stringutil.StringUtil;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.ConcurrentHashMap;

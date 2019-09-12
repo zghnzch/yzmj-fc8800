@@ -15,6 +15,8 @@ import Net.PC15.FC8800.Command.Data.CardDetail;
 import Net.PC15.FC8800.Command.Data.FC8800WatchTransaction;
 import Net.PC15.FC8800.Command.Data.TCPDetail;
 import Net.PC15.FC8800.Command.System.SearchEquptOnNetNum;
+import fcardutils.stringutil.StringUtil;
+import fcardutils.threadutil.ThreadPoolUtils;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -25,54 +27,56 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 import static fcardiodemo.FormMainFunctionUtils.*;
+import static fcardiodemo.FormMainFunctionUtils2.*;
 /**
  * @author 赖金杰
  */
 public class FormMain extends javax.swing.JFrame implements INConnectorEvent, ActionListener {
 	// region GUI组件定义
-	static javax.swing.JButton ButReadDeadline;
-	static javax.swing.JButton ButWriteDeadline;
-	static javax.swing.JLabel LblDate;
+	private static javax.swing.JButton ButReadDeadline;
+	private static javax.swing.JButton ButWriteDeadline;
+	private static javax.swing.JLabel LblDate;
 	static javax.swing.JTextField TxtCardExpiry;
-	static javax.swing.ButtonGroup bgConnectType;
-	static javax.swing.JButton butAddCardToList;
-	static javax.swing.JButton butAutoSearchDoor;
-	static javax.swing.JButton butBeginWatch;
-	static javax.swing.JButton butCardListAutoCreate;
-	static javax.swing.JButton butCardListClear;
-	static javax.swing.JButton butClearCardDataBase;
-	static javax.swing.JButton butClearTransactionDatabase;
-	static javax.swing.JButton butCloseAlarm;
-	static javax.swing.JButton butCloseDoor;
-	static javax.swing.JButton butCloseWatch;
-	static javax.swing.JButton butDeleteCard;
-	static javax.swing.JButton butDeleteCardByList;
-	static javax.swing.JButton butHoldDoor;
-	static javax.swing.JButton butLockDoor;
-	static javax.swing.JButton butOpenDoor;
-	static javax.swing.JButton butReadCardDataBase;
-	static javax.swing.JButton butReadCardDatabaseDetail;
-	static javax.swing.JButton butReadCardDetail;
-	static javax.swing.JButton butReadConnectPassword;
-	static javax.swing.JButton butReadSN;
-	static javax.swing.JButton butReadTCPSetting;
-	static javax.swing.JButton butReadTransactionDatabase;
-	static javax.swing.JButton butReadTransactionDatabaseByIndex;
-	static javax.swing.JButton butReadTransactionDatabaseDetail;
-	static javax.swing.JButton butReadVersion;
-	static javax.swing.JButton butResetConnectPassword;
-	static javax.swing.JButton butTransactionDatabaseEmpty;
-	static javax.swing.JButton butUnlockDoor;
-	static javax.swing.JButton butUploadCard;
-	static javax.swing.JButton butWriteCardListBySequence;
-	static javax.swing.JButton butWriteCardListBySort;
-	static javax.swing.JButton butWriteConnectPassword;
-	static javax.swing.JButton butWriteSN;
-	static javax.swing.JButton butWriteTCPSetting;
-	static javax.swing.JButton butWriteTransactionDatabaseReadIndex;
-	static javax.swing.JButton butWriteTransactionDatabaseWriteIndex;
+	private static javax.swing.ButtonGroup bgConnectType;
+	private static javax.swing.JButton butAddCardToList;
+	private static javax.swing.JButton butAutoSearchDoor;
+	private static javax.swing.JButton butBeginWatch;
+	private static javax.swing.JButton butCardListAutoCreate;
+	private static javax.swing.JButton butCardListClear;
+	private static javax.swing.JButton butClearCardDataBase;
+	private static javax.swing.JButton butClearTransactionDatabase;
+	private static javax.swing.JButton butCloseAlarm;
+	private static javax.swing.JButton butCloseDoor;
+	private static javax.swing.JButton butCloseWatch;
+	private static javax.swing.JButton butDeleteCard;
+	private static javax.swing.JButton butDeleteCardByList;
+	private static javax.swing.JButton butHoldDoor;
+	private static javax.swing.JButton butLockDoor;
+	private static javax.swing.JButton butOpenDoor;
+	private static javax.swing.JButton butReadCardDataBase;
+	private static javax.swing.JButton butReadCardDatabaseDetail;
+	private static javax.swing.JButton butReadCardDetail;
+	private static javax.swing.JButton butReadConnectPassword;
+	private static javax.swing.JButton butReadSN;
+	private static javax.swing.JButton butReadTCPSetting;
+	private static javax.swing.JButton butReadTransactionDatabase;
+	private static javax.swing.JButton butReadTransactionDatabaseByIndex;
+	private static javax.swing.JButton butReadTransactionDatabaseDetail;
+	private static javax.swing.JButton butReadVersion;
+	private static javax.swing.JButton butResetConnectPassword;
+	private static javax.swing.JButton butTransactionDatabaseEmpty;
+	private static javax.swing.JButton butUnlockDoor;
+	private static javax.swing.JButton butUploadCard;
+	private static javax.swing.JButton butWriteCardListBySequence;
+	private static javax.swing.JButton butWriteCardListBySort;
+	private static javax.swing.JButton butWriteConnectPassword;
+	private static javax.swing.JButton butWriteSN;
+	private static javax.swing.JButton butWriteTCPSetting;
+	private static javax.swing.JButton butWriteTransactionDatabaseReadIndex;
+	private static javax.swing.JButton butWriteTransactionDatabaseWriteIndex;
 	static javax.swing.JCheckBox chkCardDoor1;
 	static javax.swing.JCheckBox chkCardDoor2;
 	static javax.swing.JCheckBox chkCardDoor3;
@@ -81,53 +85,53 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 	static javax.swing.JComboBox<String> cmbCardDataBaseType;
 	static javax.swing.JComboBox<String> cmbCardStatus;
 	static javax.swing.JComboBox<String> cmbTransactionType;
-	static javax.swing.JButton jButton1;
-	static javax.swing.JButton jButton2;
-	static javax.swing.JLabel jLabel10;
-	static javax.swing.JLabel jLabel11;
-	static javax.swing.JLabel jLabel12;
-	static javax.swing.JLabel jLabel13;
-	static javax.swing.JLabel jLabel14;
-	static javax.swing.JLabel jLabel15;
-	static javax.swing.JLabel jLabel16;
-	static javax.swing.JLabel jLabel17;
-	static javax.swing.JLabel jLabel18;
-	static javax.swing.JLabel jLabel19;
-	static javax.swing.JLabel jLabel20;
-	static javax.swing.JLabel jLabel21;
-	static javax.swing.JLabel jLabel22;
-	static javax.swing.JLabel jLabel23;
-	static javax.swing.JLabel jLabel24;
-	static javax.swing.JLabel jLabel25;
-	static javax.swing.JLabel jLabel6;
-	static javax.swing.JLabel jLabel7;
-	static javax.swing.JLabel jLabel8;
-	static javax.swing.JLabel jLabel9;
-	static javax.swing.JPanel jPanel1;
-	static javax.swing.JPanel jPanel2;
-	static javax.swing.JPanel jPanel3;
-	static javax.swing.JPanel jPanel4;
-	static javax.swing.JPanel jPanel5;
-	static javax.swing.JPanel jPanel6;
-	static javax.swing.JPanel jPanel8;
-	static javax.swing.JPanel jPanel9;
-	static javax.swing.JScrollPane jScrollPane1;
-	static javax.swing.JScrollPane jScrollPane2;
-	static javax.swing.JTabbedPane jTabSetting;
-	static javax.swing.JTextArea jTextArea1;
-	static javax.swing.JPanel jpConnectSetting;
-	static javax.swing.JScrollPane jpLog;
-	static javax.swing.JLabel lblCommandName;
-	static javax.swing.JLabel lblTime;
-	static javax.swing.JPanel pnlTCPClient;
-	static javax.swing.JPanel pnlUDPClient;
-	static javax.swing.JPanel pnlTCPServer;
-	static javax.swing.JProgressBar prCommand;
+	private static javax.swing.JButton jButton1;
+	private static javax.swing.JButton jButton2;
+	private static javax.swing.JLabel jLabel10;
+	private static javax.swing.JLabel jLabel11;
+	private static javax.swing.JLabel jLabel12;
+	private static javax.swing.JLabel jLabel13;
+	private static javax.swing.JLabel jLabel14;
+	private static javax.swing.JLabel jLabel15;
+	private static javax.swing.JLabel jLabel16;
+	private static javax.swing.JLabel jLabel17;
+	private static javax.swing.JLabel jLabel18;
+	private static javax.swing.JLabel jLabel19;
+	private static javax.swing.JLabel jLabel20;
+	private static javax.swing.JLabel jLabel21;
+	private static javax.swing.JLabel jLabel22;
+	private static javax.swing.JLabel jLabel23;
+	private static javax.swing.JLabel jLabel24;
+	private static javax.swing.JLabel jLabel25;
+	private static javax.swing.JLabel jLabel6;
+	private static javax.swing.JLabel jLabel7;
+	private static javax.swing.JLabel jLabel8;
+	private static javax.swing.JLabel jLabel9;
+	private static javax.swing.JPanel jPanel1;
+	private static javax.swing.JPanel jPanel2;
+	private static javax.swing.JPanel jPanel3;
+	private static javax.swing.JPanel jPanel4;
+	private static javax.swing.JPanel jPanel5;
+	private static javax.swing.JPanel jPanel6;
+	private static javax.swing.JPanel jPanel8;
+	private static javax.swing.JPanel jPanel9;
+	private static javax.swing.JScrollPane jScrollPane1;
+	private static javax.swing.JScrollPane jScrollPane2;
+	private static javax.swing.JTabbedPane jTabSetting;
+	private static javax.swing.JTextArea jTextArea1;
+	private static javax.swing.JPanel jpConnectSetting;
+	private static javax.swing.JScrollPane jpLog;
+	private static javax.swing.JLabel lblCommandName;
+	private static javax.swing.JLabel lblTime;
+	private static javax.swing.JPanel pnlTCPClient;
+	private static javax.swing.JPanel pnlUDPClient;
+	private static javax.swing.JPanel pnlTCPServer;
+	private static javax.swing.JProgressBar prCommand;
 	static javax.swing.JTable tblCard;
 	static javax.swing.JTextField txtCardAutoCreateSzie;
 	static javax.swing.JTextField txtCardData;
 	static javax.swing.JTextField txtCardPassword;
-	public static javax.swing.JTextArea txtLog;
+	static javax.swing.JTextArea txtLog;
 	static javax.swing.JTextField txtOpenTimes;
 	static javax.swing.JTextField txtPassword;
 	static javax.swing.JTextField txtReadTransactionDatabaseByIndex;
@@ -137,12 +141,12 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 	static javax.swing.JTextField txtSN;
 	static javax.swing.JTextField txtTCPClienpIP;
 	static javax.swing.JTextField txtTCPClienpPort;
-	static  JTextField txtUdpIp;
-	static  JTextField txtUdpPort;
-	static  JLabel label_2;
-	static  JLabel label_3;
-	static  JTextField txtTcpServerPort;
-	static  JTextField txtTcpServerIp;
+	static JTextField txtUdpIp;
+	static JTextField txtUdpPort;
+	private static JLabel label_2;
+	private static JLabel label_3;
+	static JTextField txtTcpServerPort;
+	static JTextField txtTcpServerIp;
 	static javax.swing.JTextField txtTransactionDatabaseReadIndex;
 	static javax.swing.JTextField txtTransactionDatabaseWriteIndex;
 	static javax.swing.JTextField txtWriteSN;
@@ -150,22 +154,22 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 	private JLabel label_4;
 	// endregion
 	// region 变量定义
-	public final static Logger myLog = Logger.getLogger(FormMain.class);
-	public static ConnectorAllocator _Allocator;
+	final static Logger myLog = Logger.getLogger(FormMain.class);
+	static ConnectorAllocator _Allocator;
 	// public static ConcurrentHashMap<String, String> CommandName
-	public static ConcurrentHashMap<String, CommandResultCallback> CommandResult;
+	static ConcurrentHashMap<String, CommandResultCallback> CommandResult;
 	// public Timer timer = new Timer()
-	public static boolean mIsClose;
-	public static StringBuilder strLog;
-	public static TCPDetail mReadTCPDetail;
-	public static String[] CardStatusList = new String[]{"正常", "挂失卡", "黑名单"};
-	public static String[] PrivilegeList = new String[]{"无", "首卡特权卡", "常开特权卡", "巡更卡", "防盗设置卡"};
-	public static String OpenTimesUnlimited = "无限制";
-	public static ArrayList<CardDetail> mCardList;
-	public static int SearchTimes = 0;
-	public static int SearchNetFlag;
-	public static String[] mWatchTypeNameList;
-	public static String[] mCardTransactionList, mButtonTransactionList, mDoorSensorTransactionList, mSoftwareTransactionList, mAlarmTransactionList, mSystemTransactionList;
+	private static boolean mIsClose;
+	static StringBuilder strLog;
+	static TCPDetail mReadTCPDetail;
+	static String[] CardStatusList = new String[]{"正常", "挂失卡", "黑名单"};
+	static String[] PrivilegeList = new String[]{"无", "首卡特权卡", "常开特权卡", "巡更卡", "防盗设置卡"};
+	static String OpenTimesUnlimited = "无限制";
+	static ArrayList<CardDetail> mCardList;
+	static int SearchTimes = 0;
+	static int SearchNetFlag;
+	static String[] mWatchTypeNameList;
+	static String[] mCardTransactionList, mButtonTransactionList, mDoorSensorTransactionList, mSoftwareTransactionList, mAlarmTransactionList, mSystemTransactionList;
 	// endregion
 	/**
 	 * 主窗口
@@ -184,7 +188,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		// 初始化timer
 		// timer = new Timer();
 		// timer.schedule(new TimeTask(), 200, 1000);
-		ShowConnectPanel();
+		showConnectPanel();
 		_Allocator = ConnectorAllocator.GetAllocator();
 		_Allocator.AddListener(this);
 		strLog = new StringBuilder(50000);
@@ -210,13 +214,13 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		CommandResult = new ConcurrentHashMap<>();
 		// CommandName = new ConcurrentHashMap<>();
 		FormUtils.iniCommandName();
-		FormMainFunctionUtils.IniCardDataBase();
+		FormMainFunctionUtils2.IniCardDataBase();
 		FormUtils.iniWatchEvent();
 	}
 	/**
 	 * 初始化界面内容
 	 */
-	public void initComponents() {
+	private void initComponents() {
 		bgConnectType = new javax.swing.ButtonGroup();
 		jpConnectSetting = new javax.swing.JPanel();
 		jpConnectSetting.setBounds(2, 10, 713, 143);
@@ -241,14 +245,30 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jPanel3 = new javax.swing.JPanel();
 		jPanel3.setBounds(725, 13, 224, 140);
 		LblDate = new javax.swing.JLabel();
-		LblDate.setBounds(10, 10, 75, 25);
+		LblDate.setBounds(10, 10, 225, 25);
+		LblDate.setFont(new java.awt.Font("宋体", Font.PLAIN, 14));
+		LblDate.setForeground(new java.awt.Color(0, 0, 255));
+		LblDate.setHorizontalAlignment(SwingConstants.LEFT);
+		LblDate.setText("年月日：");
+		jPanel3.add(LblDate);
+		// NOI18N
 		lblTime = new javax.swing.JLabel();
 		lblTime.setBounds(92, 8, 75, 25);
+		lblTime.setFont(new java.awt.Font("宋体", Font.PLAIN, 14));
+		lblTime.setForeground(new java.awt.Color(0, 0, 255));
+		lblTime.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		lblTime.setText("时分秒");
+		// jPanel3.add(lblTime);
 		prCommand = new javax.swing.JProgressBar();
 		prCommand.setBounds(10, 116, 204, 14);
+		jPanel3.add(prCommand);
 		lblCommandName = new javax.swing.JLabel();
 		lblCommandName.setFont(new Font("宋体", Font.PLAIN, 14));
-		lblCommandName.setBounds(20, 45, 194, 61);
+		lblCommandName.setBounds(10, 45, 194, 61);
+		lblCommandName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+		lblCommandName.setText("当前命令：");
+		lblCommandName.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+		jPanel3.add(lblCommandName);
 		jpLog = new javax.swing.JScrollPane();
 		jpLog.setBounds(0, 163, 949, 689);
 		txtLog = new javax.swing.JTextArea();
@@ -424,23 +444,6 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		pnlTCPServer.add(txtTcpServerIp);
 		getContentPane().add(jpConnectSetting);
 		jPanel3.setLayout(null);
-		// NOI18N
-		LblDate.setFont(new java.awt.Font("宋体", Font.PLAIN, 14));
-		LblDate.setForeground(new java.awt.Color(0, 0, 255));
-		LblDate.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		LblDate.setText("获取日期");
-		jPanel3.add(LblDate);
-		// NOI18N
-		lblTime.setFont(new java.awt.Font("宋体", Font.PLAIN, 14));
-		lblTime.setForeground(new java.awt.Color(0, 0, 255));
-		lblTime.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-		lblTime.setText("18:09:07");
-		jPanel3.add(lblTime);
-		jPanel3.add(prCommand);
-		lblCommandName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		lblCommandName.setText("当前命令：");
-		lblCommandName.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-		jPanel3.add(lblCommandName);
 		getContentPane().add(jPanel3);
 		txtLog.setColumns(20);
 		txtLog.setRows(5);
@@ -458,54 +461,24 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jTabSetting.setName("");
 		butWriteConnectPassword.setText("写通讯密码");
 		butWriteConnectPassword.setEnabled(false);
-		butWriteConnectPassword.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWriteConnectPasswordActionPerformed(evt);
-			}
-		});
+		butWriteConnectPassword.addActionListener(FormMainFunctionUtils2::butWriteConnectPasswordActionPerformed);
 		jPanel6.setLayout(null);
 		jPanel6.add(butWriteConnectPassword);
 		butResetConnectPassword.setText("复位通讯密码");
-		butResetConnectPassword.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butResetConnectPasswordActionPerformed(evt);
-			}
-		});
+		butResetConnectPassword.addActionListener(FormMainFunctionUtils2::butResetConnectPasswordActionPerformed);
 		jPanel6.add(butResetConnectPassword);
 		butReadTCPSetting.setText("读TCP参数");
-		butReadTCPSetting.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadTCPSettingActionPerformed(evt);
-			}
-		});
+		butReadTCPSetting.addActionListener(FormMainFunctionUtils2::butReadTCPSettingActionPerformed);
 		jPanel6.add(butReadTCPSetting);
 		butWriteTCPSetting.setText("写TCP参数");
 		butWriteTCPSetting.setEnabled(false);
-		butWriteTCPSetting.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWriteTCPSettingActionPerformed(evt);
-			}
-		});
+		butWriteTCPSetting.addActionListener(FormMainFunctionUtils2::butWriteTCPSettingActionPerformed);
 		jPanel6.add(butWriteTCPSetting);
 		ButReadDeadline.setText("读取控制器有效天数");
-		ButReadDeadline.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				ButReadDeadlineActionPerformed(evt);
-			}
-		});
+		ButReadDeadline.addActionListener(FormMainFunctionUtils2::ButReadDeadlineActionPerformed);
 		jPanel6.add(ButReadDeadline);
 		ButWriteDeadline.setText("修改控制器有效天数");
-		ButWriteDeadline.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				ButWriteDeadlineActionPerformed(evt);
-			}
-		});
+		ButWriteDeadline.addActionListener(FormMainFunctionUtils2::ButWriteDeadlineActionPerformed);
 		jPanel6.add(ButWriteDeadline);
 		jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("SN"));
 		jPanel1.setLayout(null);
@@ -516,21 +489,11 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jPanel1.add(txtWriteSN);
 		butWriteSN.setText("写");
 		butWriteSN.setEnabled(false);
-		butWriteSN.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWriteSNActionPerformed(evt);
-			}
-		});
+		butWriteSN.addActionListener(FormMainFunctionUtils2::butWriteSNActionPerformed);
 		jPanel1.add(butWriteSN);
 		butReadSN.setText("读SN");
-		butReadSN.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				// 读取SN
-				butReadSNActionPerformed(evt);
-			}
-		});
+		// 读取SN
+		butReadSN.addActionListener(FormMainFunctionUtils2::butReadSNActionPerformed);
 		jPanel1.add(butReadSN);
 		jPanel6.add(jPanel1);
 		jLabel7 = new javax.swing.JLabel();
@@ -559,100 +522,43 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		butReadVersion.setBounds(233, 136, 142, 23);
 		jPanel1.add(butReadVersion);
 		butReadVersion.setText("读取版本号");
-		
 		textDeviceVersion = new JTextField();
 		textDeviceVersion.setText("07.18");
 		textDeviceVersion.setBounds(113, 136, 110, 25);
 		jPanel1.add(textDeviceVersion);
-		
 		label_4 = new JLabel();
 		label_4.setText("版本号：");
 		label_4.setHorizontalAlignment(SwingConstants.RIGHT);
 		label_4.setBounds(20, 136, 75, 25);
 		jPanel1.add(label_4);
-		butReadVersion.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadVersionActionPerformed(evt);
-			}
-		});
-		butReadConnectPassword.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadConnectPasswordActionPerformed(evt);
-			}
-		});
+		butReadVersion.addActionListener(FormMainFunctionUtils2::butReadVersionActionPerformed);
+		butReadConnectPassword.addActionListener(FormMainFunctionUtils2::butReadConnectPasswordActionPerformed);
 		butBeginWatch.setText("打开数据监控");
-		butBeginWatch.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butBeginWatchActionPerformed(evt);
-			}
-		});
+		butBeginWatch.addActionListener(FormMainFunctionUtils::butBeginWatchActionPerformed);
 		jPanel6.add(butBeginWatch);
 		butCloseWatch.setText("关闭数据监控");
-		butCloseWatch.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butCloseWatchActionPerformed(evt);
-			}
-		});
+		butCloseWatch.addActionListener(FormMainFunctionUtils::butCloseWatchActionPerformed);
 		jPanel6.add(butCloseWatch);
 		butCloseAlarm.setText("解除所有报警");
-		butCloseAlarm.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butCloseAlarmActionPerformed(evt);
-			}
-		});
+		butCloseAlarm.addActionListener(FormMainFunctionUtils::butCloseAlarmActionPerformed);
 		jPanel6.add(butCloseAlarm);
 		butOpenDoor.setText("远程开门");
-		butOpenDoor.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butOpenDoorActionPerformed(evt);
-			}
-		});
+		butOpenDoor.addActionListener(FormMainFunctionUtils::butOpenDoorActionPerformed);
 		jPanel6.add(butOpenDoor);
 		butCloseDoor.setText("远程关门");
-		butCloseDoor.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butCloseDoorActionPerformed(evt);
-			}
-		});
+		butCloseDoor.addActionListener(FormMainFunctionUtils::butCloseDoorActionPerformed);
 		jPanel6.add(butCloseDoor);
 		butLockDoor.setText("远程锁定");
-		butLockDoor.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butLockDoorActionPerformed(evt);
-			}
-		});
+		butLockDoor.addActionListener(FormMainFunctionUtils::butLockDoorActionPerformed);
 		jPanel6.add(butLockDoor);
 		butUnlockDoor.setText("远程解锁");
-		butUnlockDoor.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butUnlockDoorActionPerformed(evt);
-			}
-		});
+		butUnlockDoor.addActionListener(FormMainFunctionUtils::butUnlockDoorActionPerformed);
 		jPanel6.add(butUnlockDoor);
 		butHoldDoor.setText("远程常开");
-		butHoldDoor.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butHoldDoorActionPerformed(evt);
-			}
-		});
+		butHoldDoor.addActionListener(FormMainFunctionUtils::butHoldDoorActionPerformed);
 		jPanel6.add(butHoldDoor);
 		butAutoSearchDoor.setText("自动搜索控制器");
-		butAutoSearchDoor.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butAutoSearchDoorActionPerformed(evt);
-			}
-		});
+		butAutoSearchDoor.addActionListener(FormMainFunctionUtils::butAutoSearchDoorActionPerformed);
 		jPanel6.add(butAutoSearchDoor);
 		jPanel6.add(jScrollPane2);
 		jTextArea1 = new javax.swing.JTextArea();
@@ -669,52 +575,27 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jPanel8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 		jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 		jButton1.setText("读时间");
-		jButton1.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton1ActionPerformed(evt);
-			}
-		});
+		jButton1.addActionListener(FormMainFunctionUtils::jButton1ActionPerformed);
 		jPanel8.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, -1));
 		jButton2.setText("写时间");
 		jButton2.setActionCommand("");
-		jButton2.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton2ActionPerformed(evt);
-			}
-		});
+		jButton2.addActionListener(FormMainFunctionUtils::jButton2ActionPerformed);
 		jPanel8.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, -1, -1));
 		jTabSetting.addTab("时间参数", jPanel8);
 		jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 		jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 		butReadCardDataBase.setText("从控制器中读取卡片数据");
-		butReadCardDataBase.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadCardDataBaseActionPerformed(evt);
-			}
-		});
+		butReadCardDataBase.addActionListener(FormMainFunctionUtils::butReadCardDataBaseActionPerformed);
 		jPanel2.add(butReadCardDataBase, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 50, -1, -1));
 		butReadCardDatabaseDetail.setText("读卡数据库信息");
-		butReadCardDatabaseDetail.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadCardDatabaseDetailActionPerformed(evt);
-			}
-		});
+		butReadCardDatabaseDetail.addActionListener(FormMainFunctionUtils::butReadCardDatabaseDetailActionPerformed);
 		jPanel2.add(butReadCardDatabaseDetail, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 130, -1));
 		cmbCardDataBaseType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Item 1", "Item 2", "Item 3", "Item 4"}));
 		jPanel2.add(cmbCardDataBaseType, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, 130, -1));
 		butClearCardDataBase.setBackground(new java.awt.Color(255, 51, 51));
 		butClearCardDataBase.setForeground(new java.awt.Color(255, 0, 51));
 		butClearCardDataBase.setText("清空卡片数据库");
-		butClearCardDataBase.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butClearCardDataBaseActionPerformed(evt);
-			}
-		});
+		butClearCardDataBase.addActionListener(FormMainFunctionUtils::butClearCardDataBaseActionPerformed);
 		jPanel2.add(butClearCardDataBase, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 50, -1, -1));
 		jLabel9.setText("卡区域：");
 		jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 52, -1, -1));
@@ -722,12 +603,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jScrollPane1.setViewportView(tblCard);
 		jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 480, 400));
 		butReadCardDetail.setText("读取单个卡片在控制器中的信息");
-		butReadCardDetail.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadCardDetailActionPerformed(evt);
-			}
-		});
+		butReadCardDetail.addActionListener(FormMainFunctionUtils::butReadCardDetailActionPerformed);
 		jPanel2.add(butReadCardDetail, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 490, 230, -1));
 		jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 		jLabel10.setText("卡号：");
@@ -743,7 +619,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jLabel12.setText("截止日期：");
 		jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 543, 70, -1));
 		jLabel12.getAccessibleContext().setAccessibleName("有效期：");
-		TxtCardExpiry.setText("2030-12-30 12:30");
+		TxtCardExpiry.setText("2099-12-30 12:30");
 		jPanel2.add(TxtCardExpiry, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 540, 110, -1));
 		jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 		jLabel13.setText("开门次数：");
@@ -770,68 +646,28 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jLabel15.setText("门权限：");
 		jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 600, -1, -1));
 		butAddCardToList.setText("添加到列表");
-		butAddCardToList.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butAddCardToListActionPerformed(evt);
-			}
-		});
+		butAddCardToList.addActionListener(FormMainFunctionUtils::butAddCardToListActionPerformed);
 		jPanel2.add(butAddCardToList, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 630, 160, -1));
 		butCardListClear.setText("清空列表");
-		butCardListClear.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butCardListClearActionPerformed(evt);
-			}
-		});
+		butCardListClear.addActionListener(FormMainFunctionUtils::butCardListClearActionPerformed);
 		jPanel2.add(butCardListClear, new org.netbeans.lib.awtextra.AbsoluteConstraints(381, 490, 110, -1));
 		butUploadCard.setText("将卡号上传至非排序区");
-		butUploadCard.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butUploadCardActionPerformed(evt);
-			}
-		});
+		butUploadCard.addActionListener(FormMainFunctionUtils::butUploadCardActionPerformed);
 		jPanel2.add(butUploadCard, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 630, -1, -1));
 		butDeleteCard.setText("将卡号从控制器删除");
-		butDeleteCard.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butDeleteCardActionPerformed(evt);
-			}
-		});
+		butDeleteCard.addActionListener(FormMainFunctionUtils::butDeleteCardActionPerformed);
 		jPanel2.add(butDeleteCard, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 630, -1, -1));
 		butCardListAutoCreate.setText("自动生成卡号");
-		butCardListAutoCreate.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butCardListAutoCreateActionPerformed(evt);
-			}
-		});
+		butCardListAutoCreate.addActionListener(FormMainFunctionUtils::butCardListAutoCreateActionPerformed);
 		jPanel2.add(butCardListAutoCreate, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 660, 160, -1));
 		butWriteCardListBySequence.setText("将列表卡号上传至非排序区");
-		butWriteCardListBySequence.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWriteCardListBySequenceActionPerformed(evt);
-			}
-		});
+		butWriteCardListBySequence.addActionListener(FormMainFunctionUtils::butWriteCardListBySequenceActionPerformed);
 		jPanel2.add(butWriteCardListBySequence, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 690, -1, -1));
 		butWriteCardListBySort.setText("将列表卡号上传至排序区");
-		butWriteCardListBySort.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWriteCardListBySortActionPerformed(evt);
-			}
-		});
+		butWriteCardListBySort.addActionListener(FormMainFunctionUtils::butWriteCardListBySortActionPerformed);
 		jPanel2.add(butWriteCardListBySort, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 690, -1, -1));
 		butDeleteCardByList.setText("删除列表中的卡片");
-		butDeleteCardByList.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butDeleteCardByListActionPerformed(evt);
-			}
-		});
+		butDeleteCardByList.addActionListener(FormMainFunctionUtils::butDeleteCardByListActionPerformed);
 		jPanel2.add(butDeleteCardByList, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 690, -1, -1));
 		jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 		jLabel16.setText("自动生成数量：");
@@ -841,34 +677,19 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jTabSetting.addTab("卡片管理", jPanel2);
 		jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 		butReadTransactionDatabaseDetail.setText("读取记录数据库详情");
-		butReadTransactionDatabaseDetail.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadTransactionDatabaseDetailActionPerformed(evt);
-			}
-		});
+		butReadTransactionDatabaseDetail.addActionListener(FormMainFunctionUtils::butReadTransactionDatabaseDetailActionPerformed);
 		jPanel4.add(butReadTransactionDatabaseDetail, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 		butTransactionDatabaseEmpty.setBackground(new java.awt.Color(255, 0, 0));
 		butTransactionDatabaseEmpty.setForeground(new java.awt.Color(255, 0, 0));
 		butTransactionDatabaseEmpty.setText("清空所有记录");
-		butTransactionDatabaseEmpty.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butTransactionDatabaseEmptyActionPerformed(evt);
-			}
-		});
+		butTransactionDatabaseEmpty.addActionListener(FormMainFunctionUtils::butTransactionDatabaseEmptyActionPerformed);
 		jPanel4.add(butTransactionDatabaseEmpty, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, -1, -1));
 		jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("指定记录类型的操作"));
 		jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 		butClearTransactionDatabase.setBackground(new java.awt.Color(255, 0, 0));
 		butClearTransactionDatabase.setForeground(new java.awt.Color(255, 0, 0));
 		butClearTransactionDatabase.setText("清空记录");
-		butClearTransactionDatabase.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butClearTransactionDatabaseActionPerformed(evt);
-			}
-		});
+		butClearTransactionDatabase.addActionListener(FormMainFunctionUtils::butClearTransactionDatabaseActionPerformed);
 		jPanel5.add(butClearTransactionDatabase, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 20, -1, -1));
 		jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 		jLabel17.setText("记录类型：");
@@ -876,28 +697,13 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		cmbTransactionType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"读卡记录", "出门开关记录", "门磁记录", "软件操作记录", "报警记录", "系统记录"}));
 		jPanel5.add(cmbTransactionType, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 20, 110, -1));
 		butReadTransactionDatabaseByIndex.setText("按序号读记录");
-		butReadTransactionDatabaseByIndex.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadTransactionDatabaseByIndexActionPerformed(evt);
-			}
-		});
+		butReadTransactionDatabaseByIndex.addActionListener(FormMainFunctionUtils::butReadTransactionDatabaseByIndexActionPerformed);
 		jPanel5.add(butReadTransactionDatabaseByIndex, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 120, -1));
 		butWriteTransactionDatabaseReadIndex.setText("修改记录读索引");
-		butWriteTransactionDatabaseReadIndex.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWriteTransactionDatabaseReadIndexActionPerformed(evt);
-			}
-		});
+		butWriteTransactionDatabaseReadIndex.addActionListener(FormMainFunctionUtils::butWriteTransactionDatabaseReadIndexActionPerformed);
 		jPanel5.add(butWriteTransactionDatabaseReadIndex, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
 		butWriteTransactionDatabaseWriteIndex.setText("修改记录写索引");
-		butWriteTransactionDatabaseWriteIndex.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWriteTransactionDatabaseWriteIndexActionPerformed(evt);
-			}
-		});
+		butWriteTransactionDatabaseWriteIndex.addActionListener(FormMainFunctionUtils::butWriteTransactionDatabaseWriteIndexActionPerformed);
 		jPanel5.add(butWriteTransactionDatabaseWriteIndex, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, -1, -1));
 		jLabel18.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 		jLabel18.setText("读索引号：");
@@ -922,12 +728,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		chkTransactionIsCircle.setText("循环");
 		jPanel5.add(chkTransactionIsCircle, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 70, -1, -1));
 		butReadTransactionDatabase.setText("读新记录");
-		butReadTransactionDatabase.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butReadTransactionDatabaseActionPerformed(evt);
-			}
-		});
+		butReadTransactionDatabase.addActionListener(FormMainFunctionUtils::butReadTransactionDatabaseActionPerformed);
 		jPanel5.add(butReadTransactionDatabase, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 120, -1));
 		jLabel22.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 		jLabel22.setText("单次读取数量：");
@@ -943,6 +744,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		jTabSetting.addTab("记录管理", jPanel4);
 		getContentPane().add(jTabSetting);
 		pack();
+		setTimeThread();
 	}
 	@Override
 	public void ClientOnline(TCPServerClientDetail client) {
@@ -982,7 +784,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 	@Override
 	public void CommandProcessEvent(INCommand cmd) {
 		try {
-			// lblCommandName.setText("当前命令：" + GetCommandName(cmd) + "正在处理" );
+			// lblCommandName.setText("当前命令：" + GetCommandName(cmd) + "正在处理" )
 			StringBuilder strBuf = new StringBuilder(100);
 			strBuf.append("<html>");
 			strBuf.append("当前命令：");
@@ -994,7 +796,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf.append("</html>");
 			lblCommandName.setText(strBuf.toString());
 			if (prCommand.getMaximum() != cmd.getProcessMax()) {
-				// prCommand.setValue(0);
+				// prCommand.setValue(0)
 				prCommand.setMaximum(cmd.getProcessMax());
 			}
 			prCommand.setValue(cmd.getProcessStep());
@@ -1108,9 +910,27 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 	public interface CommandResultCallback {
 		void ResultToLog(StringBuilder strBuf, INCommandResult result);
 	}
-	public void ShowConnectPanel() {
+	private void showConnectPanel() {
 		pnlTCPClient.setVisible(true);
 		pnlUDPClient.setVisible(true);
 		pnlTCPServer.setVisible(true);
+	}
+	private void setTimeThread() {
+		ExecutorService executorService = ThreadPoolUtils.newDaemonSingleThreadExecutor("set time to label");
+		if (executorService != null) {
+			executorService.execute(new Runnable() {
+				@Override
+				public void run() {
+					while (true) {
+						try {
+							LblDate.setText(StringUtil.getNowTimeFortest());
+						}catch (Exception e){
+							break;
+						}
+
+					}
+				}
+			});
+		}
 	}
 }
