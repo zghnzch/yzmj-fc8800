@@ -9,8 +9,8 @@ import Net.PC15.Connector.UDP.UDPDetail;
 import Net.PC15.Data.AbstractTransaction;
 import Net.PC15.FC8800.Command.Data.*;
 import Net.PC15.FC8800.Command.FC8800Command;
-import Net.PC15.FC8800.Command.System.*;
 import Net.PC15.FC8800.Command.System.Parameter.*;
+import Net.PC15.FC8800.Command.System.*;
 import Net.PC15.FC8800.Command.System.Result.*;
 import Net.PC15.FC8800.FC8800Identity;
 import Net.PC15.Util.ByteUtil;
@@ -35,7 +35,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static fcardiodemo.FormMain.*;
-import static fcardiodemo.FormMain.mSystemTransactionList;
 /***
  * @class FormMainFunctionUtils2
  * @description TODO
@@ -47,14 +46,17 @@ import static fcardiodemo.FormMain.mSystemTransactionList;
  * @package fcardiodemo
  */
 public class FormMainFunctionUtils2 {
-	// 读取SN
+	/**
+	 * 读取SN
+	 * @param evt evt
+	 */
 	static void butReadSNActionPerformed(java.awt.event.ActionEvent evt) {
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			myLog.error("CommandDetail is null");
 			return;
 		}
-		myLog.info("ReadSN:"+dt.toString());
+		myLog.info("ReadSN:" + dt.toString());
 		CommandParameter par = new CommandParameter(dt);
 		INCommand cmd = new ReadSN(par);
 		AddCommandResultCallback(cmd.getClass().getName(), (x, y) -> {
@@ -636,24 +638,14 @@ public class FormMainFunctionUtils2 {
 	}
 	public static CommandDetail getCommandDetail() {
 		CommandDetail detail = new CommandDetail();
-		String ip = "0", strPort = "0";
-		String udpIp = "0", udpPort = "0";
-		String tcpServerIp = "0", tcpServerPort = "0";
-		//		if (RadTCPClient.isSelected()) {
-		//
-		//			strPort = txtLocalPort.getText();
-		//		}
-		//		if (RadUDP.isSelected()) {
-		//			udpIp = txtUDPRemoteIP.getText();
-		//			udpPort = txtUDPRemotePort.getText();
-		//		}
-		//		udpIp = txtUdpIp.getText();
-		//		udpPort = txtUDPRemotePort.getText();
+		String ip, strPort;
+		//		String udpIp = "0", udpPort = "0";
+		//		String tcpServerIp = "0", tcpServerPort = "0";
 		ip = txtTCPClienpIP.getText();
 		strPort = txtTCPClienpPort.getText();
-		myLog.info("tcpclient:"+txtTCPClienpIP.getText() + " " + txtTCPClienpPort.getText());
-		myLog.info("udp:"+txtUdpIp.getText() + " " + txtUdpPort.getText());
-		myLog.info("tcpserver:"+txtTcpServerPort.getText() + " " + txtTcpServerIp.getText());
+		myLog.info("tcpclient:" + txtTCPClienpIP.getText() + " " + txtTCPClienpPort.getText());
+		myLog.info("udp:" + txtUdpIp.getText() + " " + txtUdpPort.getText());
+		myLog.info("tcpserver:" + txtTcpServerPort.getText() + " " + txtTcpServerIp.getText());
 		int iPort = Integer.parseInt(strPort);
 		if (ip.length() == 0) {
 			JOptionPane.showMessageDialog(null, "必须输入IP地址！", "错误", JOptionPane.ERROR_MESSAGE);
@@ -664,12 +656,6 @@ public class FormMainFunctionUtils2 {
 			return null;
 		}
 		detail.Connector = new TCPClientDetail(ip, iPort);
-		//		if (RadUDP.isSelected()) {
-		//			UDPDetail udpd = new UDPDetail(ip, iPort);
-		//			udpd.Broadcast = true;
-		//			// udpd.LocalPort = 10088;//设定本地绑定端口号
-		//			detail.Connector = udpd;
-		//		}
 		String sn, pwd;
 		sn = txtSN.getText();
 		if (sn.length() != 16) {
@@ -682,6 +668,7 @@ public class FormMainFunctionUtils2 {
 			return null;
 		}
 		detail.Identity = new FC8800Identity(sn, pwd, E_ControllerType.FC8800);
+		myLog.info("CommandDetail:" + detail);
 		return detail;
 	}
 	public static void AddCommandResultCallback(String sCommand, CommandResultCallback callback) {

@@ -8,6 +8,7 @@ public class ReadCardDatabaseDetail_Result implements INCommandResult {
    public long SequenceDataBaseSize;
    public long SequenceCardSize;
 
+   @Override
    public void release() {
    }
 }

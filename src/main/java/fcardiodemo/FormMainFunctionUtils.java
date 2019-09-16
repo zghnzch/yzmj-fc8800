@@ -611,8 +611,11 @@ public class FormMainFunctionUtils {
 		});
 		_Allocator.AddCommand(cmd);
 	}
+	/**
+	 * 读取控制器中的卡片数据库信息
+	 * @param evt evt
+	 */
 	static void butReadCardDatabaseDetailActionPerformed(java.awt.event.ActionEvent evt) {
-		// 读取控制器中的卡片数据库信息
 		CommandDetail dt = getCommandDetail();
 		if (dt == null) {
 			return;

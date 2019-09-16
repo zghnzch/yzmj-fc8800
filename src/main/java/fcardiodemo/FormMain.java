@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
-import static fcardiodemo.FormMainFunctionUtils.*;
+import static fcardiodemo.FormMainFunctionUtils.txtLogMouseClicked;
 import static fcardiodemo.FormMainFunctionUtils2.*;
 /**
  * @author 赖金杰
@@ -224,6 +224,8 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		bgConnectType = new javax.swing.ButtonGroup();
 		jpConnectSetting = new javax.swing.JPanel();
 		jpConnectSetting.setBounds(2, 10, 713, 143);
+		jpConnectSetting.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "通讯参数", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+		jpConnectSetting.setLayout(null);
 		jPanel9 = new javax.swing.JPanel();
 		jPanel9.setBounds(10, 21, 699, 117);
 		/* ============= */
@@ -382,8 +384,6 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setMinimumSize(new Dimension(1500, 900));
 		setSize(new Dimension(1500, 850));
-		jpConnectSetting.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "通讯参数", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
-		jpConnectSetting.setLayout(null);
 		pnlTCPClient.setBorder(javax.swing.BorderFactory.createTitledBorder("TCP客户端"));
 		pnlTCPClient.setLayout(null);
 		pnlUDPClient.setBorder(javax.swing.BorderFactory.createTitledBorder("UDP端"));
@@ -414,11 +414,11 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 		txtUdpIp.setText("255.255.255.255");
 		txtUdpIp.setBounds(95, 21, 90, 20);
 		pnlUDPClient.add(txtUdpIp);
-		JLabel label_1 = new JLabel();
-		label_1.setText("服务器端口：");
-		label_1.setHorizontalAlignment(SwingConstants.RIGHT);
-		label_1.setBounds(10, 51, 79, 20);
-		pnlUDPClient.add(label_1);
+		JLabel lbeUdp = new JLabel();
+		lbeUdp.setText("服务器端口：");
+		lbeUdp.setHorizontalAlignment(SwingConstants.RIGHT);
+		lbeUdp.setBounds(10, 51, 79, 20);
+		pnlUDPClient.add(lbeUdp);
 		txtUdpPort = new JTextField();
 		txtUdpPort.setText("8101");
 		txtUdpPort.setBounds(95, 51, 90, 20);
@@ -767,17 +767,17 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			String sKey = cmd.getClass().getName();
 			if (CommandResult.containsKey(sKey)) {
 				strBuf.append("命令处理完毕，返回结果数据：");
-				CommandResult.get(sKey).ResultToLog(strBuf, result);
+				CommandResult.get(sKey).resultToLog(strBuf, result);
 			}
 			else {
 				strBuf.append("命令处理完毕!");
 			}
-			// FormUtils.AddLog(strBuf.toString(),strLog,txtLog);
+			// FormUtils.AddLog(strBuf.toString(),strLog,txtLog)
 			FormUtils.addTxtLog(strBuf.toString());
 			strBuf = null;
 		}
 		catch (Exception e) {
-			// System.out.println("fcardiodemo.FormMain.CommandCompleteEvent() -- 发生错误：" + e.toString());
+			// myLog.error("fcardiodemo.FormMain.CommandCompleteEvent() -- 发生错误：" + e.toString())
 			Logger.getRootLogger().error("fcardiodemo.FormMain.CommandCompleteEvent() -- 发生错误：" + e);
 		}
 	}
@@ -804,7 +804,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.FormMain.CommandProcessEvent() -- 发生错误：" + e.toString());
+			myLog.error("fcardiodemo.FormMain.CommandProcessEvent() -- 发生错误：" + e.toString());
 		}
 	}
 	@Override
@@ -822,7 +822,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.FormMain.ConnectorErrorEvent() --- " + e.toString());
+			myLog.error("fcardiodemo.FormMain.ConnectorErrorEvent() --- " + e.toString());
 		}
 	}
 	@Override
@@ -835,7 +835,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.FormMain.ConnectorErrorEvent() -- " + e.toString());
+			myLog.error("fcardiodemo.FormMain.ConnectorErrorEvent() -- " + e.toString());
 		}
 	}
 	@Override
@@ -852,7 +852,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.FormMain.CommandTimeout() -- " + e.toString());
+			myLog.error("fcardiodemo.FormMain.CommandTimeout() -- " + e.toString());
 		}
 	}
 	@Override
@@ -865,7 +865,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.FormMain.PasswordErrorEvent() -- " + e.toString());
+			myLog.error("fcardiodemo.FormMain.PasswordErrorEvent() -- " + e.toString());
 		}
 	}
 	@Override
@@ -878,7 +878,7 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.FormMain.ChecksumErrorEvent() -- " + e.toString());
+			myLog.error("fcardiodemo.FormMain.ChecksumErrorEvent() -- " + e.toString());
 		}
 	}
 	@Override
@@ -901,33 +901,27 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			strBuf = null;
 		}
 		catch (Exception e) {
-			System.out.println("fcardiodemo.FormMain.WatchEvent() -- " + e.toString());
+			myLog.error("fcardiodemo.FormMain.WatchEvent() -- " + e.toString());
 		}
 	}
-	/*
-	 * ============================================================================
-	 */
-	public interface CommandResultCallback {
-		void ResultToLog(StringBuilder strBuf, INCommandResult result);
-	}
+
 	private void showConnectPanel() {
 		pnlTCPClient.setVisible(true);
 		pnlUDPClient.setVisible(true);
 		pnlTCPServer.setVisible(true);
 	}
 	private void setTimeThread() {
-		ExecutorService executorService = ThreadPoolUtils.newDaemonMultipleThreadExecutor("set time to label");
+		ExecutorService executorService = ThreadPoolUtils.newDaemonMultipleThreadExecutor("set-time-to-label");
 		if (executorService != null) {
-			executorService.execute(new Runnable() {
-				@Override
-				public void run() {
-					while (true) {
-						try {
-							LblDate.setText(StringUtil.getNowTimeFortest());
-						}catch (Exception e){
-							break;
-						}
-
+			executorService.execute(() -> {
+				while (true) {
+					try {
+						LblDate.setText(StringUtil.getNowTimeFortest());
+						Thread.sleep(1000);
+					}
+					catch (Exception e) {
+						myLog.error(e);
+						break;
 					}
 				}
 			});

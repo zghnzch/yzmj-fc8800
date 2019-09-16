@@ -13,9 +13,11 @@ public class ReadCardDatabaseDetail extends FC8800Command {
       this.CreatePacket(7, 1);
    }
 
+   @Override
    protected void Release0() {
    }
 
+   @Override
    protected boolean _CommandStep(INConnectorEvent oEvent, FC8800PacketModel model) {
       if (this.CheckResponse_Cmd(model, 7, 1, 0, 16)) {
          ByteBuf buf = model.GetDatabuff();
