@@ -18,12 +18,12 @@ public class CommandDetail {
 	public INConnectorEvent Event;
 	public int Timeout = 500;
 	public int RestartCount = 3;
-   @Override
-   public String toString() {
-      return "CommandDetail{" + "Connector=" + Connector + ", Identity=" + Identity + ", Desc='" + Desc + '\'' + ", ID=" + ID + ", Name='" + Name + '\'' + ", UserPar=" + UserPar + ", EndTime=" + EndTime + ", BeginTime=" + BeginTime + ", Event=" + Event + ", Timeout=" + Timeout + ", RestartCount=" + RestartCount + '}';
-   }
-   public CommandDetail() {
+	public CommandDetail() {
 		this.init();
+	}
+	@Override
+	public String toString() {
+		return "CommandDetail{" + "Connector=" + Connector + ", Identity=" + Identity + ", Desc='" + Desc + '\'' + ", ID=" + ID + ", Name='" + Name + '\'' + ", UserPar=" + UserPar + ", EndTime=" + EndTime + ", BeginTime=" + BeginTime + ", Event=" + Event + ", Timeout=" + Timeout + ", RestartCount=" + RestartCount + '}';
 	}
 	private void init() {
 		this.Identity = null;

@@ -35,11 +35,56 @@ import static fcardiodemo.FormMainFunctionUtils2.*;
  * @author 赖金杰
  */
 public class FormMain extends javax.swing.JFrame implements INConnectorEvent, ActionListener {
+	// endregion
+	// region 变量定义
+	final static Logger myLog = Logger.getLogger(FormMain.class);
+	static javax.swing.JTextField TxtCardExpiry;
+	static javax.swing.JCheckBox chkCardDoor1;
+	static javax.swing.JCheckBox chkCardDoor2;
+	static javax.swing.JCheckBox chkCardDoor3;
+	static javax.swing.JCheckBox chkCardDoor4;
+	static javax.swing.JCheckBox chkTransactionIsCircle;
+	static javax.swing.JComboBox<String> cmbCardDataBaseType;
+	static javax.swing.JComboBox<String> cmbCardStatus;
+	static javax.swing.JComboBox<String> cmbTransactionType;
+	static javax.swing.JTable tblCard;
+	static javax.swing.JTextField txtCardAutoCreateSzie;
+	static javax.swing.JTextField txtCardData;
+	static javax.swing.JTextField txtCardPassword;
+	static javax.swing.JTextArea txtLog;
+	static javax.swing.JTextField txtOpenTimes;
+	static javax.swing.JTextField txtPassword;
+	static javax.swing.JTextField txtReadTransactionDatabaseByIndex;
+	static javax.swing.JTextField txtReadTransactionDatabaseByQuantity;
+	static javax.swing.JTextField txtReadTransactionDatabasePacketSize;
+	static javax.swing.JTextField txtReadTransactionDatabaseQuantity;
+	static javax.swing.JTextField txtSN;
+	static javax.swing.JTextField txtTCPClienpIP;
+	static javax.swing.JTextField txtTCPClienpPort;
+	static JTextField txtUdpIp;
+	static JTextField txtUdpPort;
+	static JTextField txtTcpServerPort;
+	static JTextField txtTcpServerIp;
+	static javax.swing.JTextField txtTransactionDatabaseReadIndex;
+	static javax.swing.JTextField txtTransactionDatabaseWriteIndex;
+	static javax.swing.JTextField txtWriteSN;
+	static ConnectorAllocator _Allocator;
+	// public static ConcurrentHashMap<String, String> CommandName
+	static ConcurrentHashMap<String, CommandResultCallback> CommandResult;
+	static StringBuilder strLog;
+	static TCPDetail mReadTCPDetail;
+	static String[] CardStatusList = new String[]{"正常", "挂失卡", "黑名单"};
+	static String[] PrivilegeList = new String[]{"无", "首卡特权卡", "常开特权卡", "巡更卡", "防盗设置卡"};
+	static String OpenTimesUnlimited = "无限制";
+	static ArrayList<CardDetail> mCardList;
+	static int SearchTimes = 0;
+	static int SearchNetFlag;
+	static String[] mWatchTypeNameList;
+	static String[] mCardTransactionList, mButtonTransactionList, mDoorSensorTransactionList, mSoftwareTransactionList, mAlarmTransactionList, mSystemTransactionList;
 	// region GUI组件定义
 	private static javax.swing.JButton ButReadDeadline;
 	private static javax.swing.JButton ButWriteDeadline;
 	private static javax.swing.JLabel LblDate;
-	static javax.swing.JTextField TxtCardExpiry;
 	private static javax.swing.ButtonGroup bgConnectType;
 	private static javax.swing.JButton butAddCardToList;
 	private static javax.swing.JButton butAutoSearchDoor;
@@ -77,14 +122,6 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 	private static javax.swing.JButton butWriteTCPSetting;
 	private static javax.swing.JButton butWriteTransactionDatabaseReadIndex;
 	private static javax.swing.JButton butWriteTransactionDatabaseWriteIndex;
-	static javax.swing.JCheckBox chkCardDoor1;
-	static javax.swing.JCheckBox chkCardDoor2;
-	static javax.swing.JCheckBox chkCardDoor3;
-	static javax.swing.JCheckBox chkCardDoor4;
-	static javax.swing.JCheckBox chkTransactionIsCircle;
-	static javax.swing.JComboBox<String> cmbCardDataBaseType;
-	static javax.swing.JComboBox<String> cmbCardStatus;
-	static javax.swing.JComboBox<String> cmbTransactionType;
 	private static javax.swing.JButton jButton1;
 	private static javax.swing.JButton jButton2;
 	private static javax.swing.JLabel jLabel10;
@@ -127,49 +164,12 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 	private static javax.swing.JPanel pnlUDPClient;
 	private static javax.swing.JPanel pnlTCPServer;
 	private static javax.swing.JProgressBar prCommand;
-	static javax.swing.JTable tblCard;
-	static javax.swing.JTextField txtCardAutoCreateSzie;
-	static javax.swing.JTextField txtCardData;
-	static javax.swing.JTextField txtCardPassword;
-	static javax.swing.JTextArea txtLog;
-	static javax.swing.JTextField txtOpenTimes;
-	static javax.swing.JTextField txtPassword;
-	static javax.swing.JTextField txtReadTransactionDatabaseByIndex;
-	static javax.swing.JTextField txtReadTransactionDatabaseByQuantity;
-	static javax.swing.JTextField txtReadTransactionDatabasePacketSize;
-	static javax.swing.JTextField txtReadTransactionDatabaseQuantity;
-	static javax.swing.JTextField txtSN;
-	static javax.swing.JTextField txtTCPClienpIP;
-	static javax.swing.JTextField txtTCPClienpPort;
-	static JTextField txtUdpIp;
-	static JTextField txtUdpPort;
 	private static JLabel label_2;
 	private static JLabel label_3;
-	static JTextField txtTcpServerPort;
-	static JTextField txtTcpServerIp;
-	static javax.swing.JTextField txtTransactionDatabaseReadIndex;
-	static javax.swing.JTextField txtTransactionDatabaseWriteIndex;
-	static javax.swing.JTextField txtWriteSN;
-	private JTextField textDeviceVersion;
-	private JLabel label_4;
-	// endregion
-	// region 变量定义
-	final static Logger myLog = Logger.getLogger(FormMain.class);
-	static ConnectorAllocator _Allocator;
-	// public static ConcurrentHashMap<String, String> CommandName
-	static ConcurrentHashMap<String, CommandResultCallback> CommandResult;
 	// public Timer timer = new Timer()
 	private static boolean mIsClose;
-	static StringBuilder strLog;
-	static TCPDetail mReadTCPDetail;
-	static String[] CardStatusList = new String[]{"正常", "挂失卡", "黑名单"};
-	static String[] PrivilegeList = new String[]{"无", "首卡特权卡", "常开特权卡", "巡更卡", "防盗设置卡"};
-	static String OpenTimesUnlimited = "无限制";
-	static ArrayList<CardDetail> mCardList;
-	static int SearchTimes = 0;
-	static int SearchNetFlag;
-	static String[] mWatchTypeNameList;
-	static String[] mCardTransactionList, mButtonTransactionList, mDoorSensorTransactionList, mSoftwareTransactionList, mAlarmTransactionList, mSystemTransactionList;
+	private JTextField textDeviceVersion;
+	private JLabel label_4;
 	// endregion
 	/**
 	 * 主窗口
@@ -904,7 +904,6 @@ public class FormMain extends javax.swing.JFrame implements INConnectorEvent, Ac
 			myLog.error("fcardiodemo.FormMain.WatchEvent() -- " + e.toString());
 		}
 	}
-
 	private void showConnectPanel() {
 		pnlTCPClient.setVisible(true);
 		pnlUDPClient.setVisible(true);

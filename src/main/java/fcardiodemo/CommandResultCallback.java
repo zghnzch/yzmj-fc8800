@@ -1,12 +1,11 @@
 package fcardiodemo;
-
 import Net.PC15.Command.INCommandResult;
 /**
  * @author zch
+ * @version : V1.0
  * @ClassName: CommandResultCallback
  * @Description: TODO
  * @Date: 2019/9/12
- * @version : V1.0
  */
 public interface CommandResultCallback {
 	/**

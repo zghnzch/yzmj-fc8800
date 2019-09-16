@@ -15,7 +15,6 @@ public class ThreadPoolConfig {
 	 * IO_POOL_SIZE
 	 */
 	private static final Integer IO_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
-
 	private static final Integer CPU_MAX_MUM_POOL_SIZE = 10;
 	private static final Integer IO_MAX_MUM_POOL_SIZE = 30;
 	/**

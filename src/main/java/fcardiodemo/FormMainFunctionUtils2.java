@@ -28,6 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -315,7 +316,7 @@ public class FormMainFunctionUtils2 {
 				}
 			}
 			FileOutputStream out = new FileOutputStream(file, true);
-			out.write(strBuf.toString().getBytes("utf-8"));
+			out.write(strBuf.toString().getBytes(StandardCharsets.UTF_8));
 			out.close();
 		}
 		catch (Exception e) {
@@ -333,7 +334,8 @@ public class FormMainFunctionUtils2 {
 	}
 	public static void ClearCardList() {
 		DefaultTableModel tableModel = (DefaultTableModel) tblCard.getModel();
-		tableModel.setRowCount(0);// 清除原有行
+		// 清除原有行
+		tableModel.setRowCount(0);
 	}
 	public static void FillCardToList() {
 		if (mCardList == null) {
@@ -429,7 +431,8 @@ public class FormMainFunctionUtils2 {
 			return null;
 		}
 		JCheckBox[] doors = new JCheckBox[]{chkCardDoor1, chkCardDoor2, chkCardDoor3, chkCardDoor4};
-		CardDetail cd = new CardDetail();// 设定卡号
+		// 设定卡号
+		CardDetail cd = new CardDetail();
 		try {
 			cd.SetCardData(Card);
 		}
@@ -601,7 +604,6 @@ public class FormMainFunctionUtils2 {
 					tmpBuf.writerIndex(0);
 					tmpBuf.writeBytes(r.ResultData);
 					td.SetBytes(tmpBuf);
-					;
 					PirntTCPDetail(td, log);
 				}
 			}

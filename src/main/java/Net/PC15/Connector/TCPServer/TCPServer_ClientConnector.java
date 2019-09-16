@@ -17,9 +17,9 @@ import java.net.InetSocketAddress;
 //import java.util.logging.Logger;
 public class TCPServer_ClientConnector extends AbstractConnector {
 	private final int _ClientID = TCPServerAllocator.GetNewClientID();
+	protected TCPServerAllocator _ServerAllocator;
 	private TCPServerClientDetail _RemoteDetail;
 	private SocketChannel _Client;
-	protected TCPServerAllocator _ServerAllocator;
 	private TCPServer_ClientNettyHandler _Handler;
 	private ChannelFuture _WriteFuture;
 	public TCPServer_ClientConnector(TCPServerAllocator allocator, INConnectorEvent event, SocketChannel ch, TCPServer_ClientNettyHandler handler) throws CloneNotSupportedException {

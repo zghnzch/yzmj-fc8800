@@ -554,7 +554,7 @@ public class FormMainFunctionUtils {
 		AddCommandResultCallback(cmd.getClass().getName(), (x, y) -> {
 			ReadCardDetail_Result result = (ReadCardDetail_Result) y;
 			if (result.IsReady) {
-				CardDetail card = (CardDetail) result.Card;
+				CardDetail card = result.Card;
 				x.append("卡片在数据库中存储，卡片信息：");
 				Object[] arr = CardDetailToRow(card, 0);
 				StringBuilder builder = new StringBuilder(200);

@@ -23,6 +23,25 @@ public class CardDetail extends Net.PC15.FC8800.Command.Data.CardDetail {
 		this.EnterStatus = 0;
 		this.HolidayUse = false;
 	}
+	public static int SearchCardDetail(ArrayList<CardDetail> list, CardDetail search) {
+		int max = list.size() - 1;
+		int min = 0;
+		while (min <= max) {
+			int mid = max + min >> 1;
+			CardDetail cd = list.get(mid);
+			int num = cd.compareTo(search);
+			if (num > 0) {
+				max = mid - 1;
+			}
+			else {
+				if (num >= 0) {
+					return mid;
+				}
+				min = mid + 1;
+			}
+		}
+		return -1;
+	}
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof CardDetail) {
@@ -112,7 +131,7 @@ public class CardDetail extends Net.PC15.FC8800.Command.Data.CardDetail {
 		data.readBytes(btData, 0, 4);
 		int bData2;
 		for (bData2 = 0; bData2 < 4; ++bData2) {
-            System.err.println("特别需要注意的地方");
+			System.err.println("特别需要注意的地方");
 			this.TimeGroup[bData2] = btData[bData2];
 		}
 		this.OpenTimes = data.readUnsignedShort();
@@ -156,24 +175,5 @@ public class CardDetail extends Net.PC15.FC8800.Command.Data.CardDetail {
 		data.writeByte(this.EnterStatus);
 		TimeUtil.DateToBCD_yyMMddhhmmss(btTime, this.RecordTime);
 		data.writeBytes(btTime, 0, 6);
-	}
-	public static int SearchCardDetail(ArrayList<CardDetail> list, CardDetail search) {
-		int max = list.size() - 1;
-		int min = 0;
-		while (min <= max) {
-			int mid = max + min >> 1;
-			CardDetail cd = (CardDetail) list.get(mid);
-			int num = cd.compareTo(search);
-			if (num > 0) {
-				max = mid - 1;
-			}
-			else {
-				if (num >= 0) {
-					return mid;
-				}
-				min = mid + 1;
-			}
-		}
-		return -1;
 	}
 }

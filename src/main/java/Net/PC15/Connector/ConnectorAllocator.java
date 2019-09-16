@@ -25,8 +25,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 public class ConnectorAllocator {
-	private static ConnectorAllocator staticConnectorAllocator;
 	public static final ByteBufAllocator ALLOCATOR;
+	private static ConnectorAllocator staticConnectorAllocator;
+	static {
+		ALLOCATOR = ByteUtil.ALLOCATOR;
+	}
 	protected TCPClientAllocator _TCPClientAllocator = new TCPClientAllocator();
 	protected UDPAllocator _UDPAllocator = new UDPAllocator();
 	protected TCPServerAllocator _ServerAllocator;
@@ -37,12 +40,6 @@ public class ConnectorAllocator {
 	protected ArrayList<INConnectorEvent> _EventListener = new ArrayList(10);
 	protected ConcurrentLinkedQueue<IOEvent> _EventList = new ConcurrentLinkedQueue();
 	protected boolean _IsRelease = false;
-	public static synchronized ConnectorAllocator GetAllocator() {
-		if (staticConnectorAllocator == null) {
-			staticConnectorAllocator = new ConnectorAllocator();
-		}
-		return staticConnectorAllocator;
-	}
 	private ConnectorAllocator() {
 		this._ServerAllocator = new TCPServerAllocator(this._EventHeandler);
 		this.mainService.submit(() -> {
@@ -51,6 +48,12 @@ public class ConnectorAllocator {
 		this.mainService.submit(() -> {
 			this.CheckEventCallblack();
 		});
+	}
+	public static synchronized ConnectorAllocator GetAllocator() {
+		if (staticConnectorAllocator == null) {
+			staticConnectorAllocator = new ConnectorAllocator();
+		}
+		return staticConnectorAllocator;
 	}
 	public void AddListener(INConnectorEvent listener) {
 		if (!this._IsRelease) {
@@ -64,9 +67,7 @@ public class ConnectorAllocator {
 	public void DeleteListener(INConnectorEvent listener) {
 		if (!this._IsRelease) {
 			synchronized (this._EventListener) {
-				if (this._EventListener.contains(listener)) {
-					this._EventListener.remove(listener);
-				}
+				this._EventListener.remove(listener);
 			}
 		}
 	}
@@ -167,14 +168,14 @@ public class ConnectorAllocator {
 		keybuf.append(detail.Port);
 		String sKey = keybuf.toString();
 		if (this._ConnectorMap.containsKey(sKey)) {
-			return (INConnector) this._ConnectorMap.get(sKey);
+			return this._ConnectorMap.get(sKey);
 		}
 		else if (bNew) {
 			try {
 				TCPClientConnector Connector = new TCPClientConnector(this._TCPClientAllocator, detail);
 				Connector.SetEventHandle(this._EventHeandler);
 				this.AddConnector(sKey, Connector);
-				return (INConnector) this._ConnectorMap.get(sKey);
+				return this._ConnectorMap.get(sKey);
 			}
 			catch (Exception var6) {
 				return null;
@@ -192,14 +193,14 @@ public class ConnectorAllocator {
 		keybuf.append(detail.LocalPort);
 		String sKey = keybuf.toString();
 		if (this._ConnectorMap.containsKey(sKey)) {
-			return (INConnector) this._ConnectorMap.get(sKey);
+			return this._ConnectorMap.get(sKey);
 		}
 		else if (bNew) {
 			try {
 				UDPConnector Connector = new UDPConnector(this._UDPAllocator, detail);
 				Connector.SetEventHandle(this._EventHeandler);
 				this.AddConnector(sKey, Connector);
-				return (INConnector) this._ConnectorMap.get(sKey);
+				return this._ConnectorMap.get(sKey);
 			}
 			catch (Exception var6) {
 				return null;
@@ -220,7 +221,7 @@ public class ConnectorAllocator {
 			synchronized (this) {
 				if (this._ConnectorMap.size() > 0) {
 					this._ConnectorMap.entrySet().forEach((valuex) -> {
-						INConnector connector = (INConnector) valuex.getValue();
+						INConnector connector = valuex.getValue();
 						if (!connector.TaskIsBegin()) {
 							if (!connector.IsInvalid()) {
 								switch (connector.GetStatus()) {
@@ -247,7 +248,7 @@ public class ConnectorAllocator {
 						Iterator var3 = arrayList.iterator();
 						while (var3.hasNext()) {
 							String value = (String) var3.next();
-							((INConnector) this._ConnectorMap.get(value)).Release();
+							this._ConnectorMap.get(value).Release();
 							this._ConnectorMap.remove(value);
 						}
 						arrayList.clear();
@@ -270,7 +271,7 @@ public class ConnectorAllocator {
 			while (true) {
 				IOEvent event;
 				synchronized (this._EventList) {
-					event = (IOEvent) this._EventList.poll();
+					event = this._EventList.poll();
 				}
 				if (event == null) {
 					try {
@@ -290,7 +291,7 @@ public class ConnectorAllocator {
 							if (i >= iLen) {
 								break;
 							}
-							INConnectorEvent Listener = (INConnectorEvent) this._EventListener.get(i);
+							INConnectorEvent Listener = this._EventListener.get(i);
 							try {
 								switch (event.EventType) {
 									case eCommandCompleteEvent:
@@ -363,7 +364,7 @@ public class ConnectorAllocator {
 		}
 		else {
 			INConnector connector = this.GetConnector(detail, false);
-			return connector == null ? false : connector.IsForciblyConnect();
+			return connector != null && connector.IsForciblyConnect();
 		}
 	}
 	public void OpenForciblyConnect(ConnectorDetail detail) {
@@ -397,10 +398,10 @@ public class ConnectorAllocator {
 		}
 	}
 	public boolean Listen(String IP, int Port) {
-		return this._IsRelease ? false : this._ServerAllocator.Listen(IP, Port);
+		return !this._IsRelease && this._ServerAllocator.Listen(IP, Port);
 	}
 	public boolean Listen(int Port) {
-		return this._IsRelease ? false : this._ServerAllocator.Listen(Port);
+		return !this._IsRelease && this._ServerAllocator.Listen(Port);
 	}
 	public void StopListen(String IP, int Port) {
 		if (!this._IsRelease) {
@@ -430,7 +431,7 @@ public class ConnectorAllocator {
 		}
 		else {
 			connector.CloseForciblyConnect();
-			connector.StopCommand((INIdentity) null);
+			connector.StopCommand(null);
 			if (detail.GetConnectorType() == E_ConnectorType.OnTCPServer_Client) {
 				TCPServer_ClientConnector client = (TCPServer_ClientConnector) connector;
 				client.Close();
@@ -438,8 +439,20 @@ public class ConnectorAllocator {
 			return true;
 		}
 	}
-	static {
-		ALLOCATOR = ByteUtil.ALLOCATOR;
+	private static class IOEvent {
+		public eEventType EventType;
+		public INCommand Command;
+		public INCommandResult Result;
+		public ConnectorDetail connectorDetail;
+		public Boolean isStop;
+		public INData EventData;
+		private IOEvent() {
+		}
+		public enum eEventType {
+			eCommandCompleteEvent, eCommandProcessEvent, eConnectorErrorEvent, eCommandTimeout, ePasswordErrorEvent, eChecksumErrorEvent, eWatchEvent, eClientOnline, eClientOffline;
+			eEventType() {
+			}
+		}
 	}
 	private class ConnectorAllocatorEventCallback implements INConnectorEvent {
 		ConnectorAllocator _Allocator;
@@ -518,21 +531,6 @@ public class ConnectorAllocator {
 			event.EventType = IOEvent.eEventType.eClientOffline;
 			event.connectorDetail = client;
 			this._Allocator.AddEvent(event);
-		}
-	}
-	private static class IOEvent {
-		public eEventType EventType;
-		public INCommand Command;
-		public INCommandResult Result;
-		public ConnectorDetail connectorDetail;
-		public Boolean isStop;
-		public INData EventData;
-		private IOEvent() {
-		}
-		public static enum eEventType {
-			eCommandCompleteEvent, eCommandProcessEvent, eConnectorErrorEvent, eCommandTimeout, ePasswordErrorEvent, eChecksumErrorEvent, eWatchEvent, eClientOnline, eClientOffline;
-			private eEventType() {
-			}
 		}
 	}
 }

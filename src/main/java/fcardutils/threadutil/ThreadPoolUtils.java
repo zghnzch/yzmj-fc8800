@@ -15,18 +15,6 @@ public class ThreadPoolUtils {
 		return new ThreadFactoryBuilder().setDaemon(true).setNameFormat(prefix + "-%d").build();
 	}
 	/**
-	 * Wrapper over newCachedThreadPool. Thread names are formatted as prefix-ID, where ID is a
-	 * unique, sequentially assigned integer.
-	 */
-	public ThreadPoolExecutor newDaemonCachedThreadPool(String prefix) {
-		ThreadFactory threadFactory = namedThreadFactory(prefix);
-		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newCachedThreadPool(threadFactory);
-		if (pool.getMaximumPoolSize() >= maxPoolSize) {
-			return null;
-		}
-		return pool;
-	}
-	/**
 	 * Create a cached thread pool whose max number of threads is `maxThreadNumber`. Thread names
 	 * are formatted as prefix-ID, where ID is a unique, sequentially assigned integer.
 	 */
@@ -65,7 +53,7 @@ public class ThreadPoolUtils {
 	 * Wrapper over newSingleThreadExecutor.
 	 */
 	public static ExecutorService newDaemonMultipleThreadExecutor(String threadName) {
-		ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat(String.format("demo-pool-%s",threadName)).build();
+		ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat(String.format("demo-pool-%s", threadName)).build();
 		//Common Thread Pool
 		ExecutorService pool = new ThreadPoolExecutor(50, 800, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
 		//  pool.execute(()-> System.out.println(Thread.currentThread().getName()));
@@ -83,6 +71,18 @@ public class ThreadPoolUtils {
 		ThreadFactory threadFactory = new ThreadFactoryBuilder().setDaemon(true).setNameFormat(threadName).build();
 		ScheduledExecutorService pool = Executors.newSingleThreadScheduledExecutor(threadFactory);
 		if (pool.isShutdown()) {
+			return null;
+		}
+		return pool;
+	}
+	/**
+	 * Wrapper over newCachedThreadPool. Thread names are formatted as prefix-ID, where ID is a
+	 * unique, sequentially assigned integer.
+	 */
+	public ThreadPoolExecutor newDaemonCachedThreadPool(String prefix) {
+		ThreadFactory threadFactory = namedThreadFactory(prefix);
+		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newCachedThreadPool(threadFactory);
+		if (pool.getMaximumPoolSize() >= maxPoolSize) {
 			return null;
 		}
 		return pool;

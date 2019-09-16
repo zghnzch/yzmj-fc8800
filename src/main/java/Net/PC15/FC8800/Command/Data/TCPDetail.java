@@ -24,6 +24,58 @@ public class TCPDetail implements INData {
 	private String mServerAddr;
 	public TCPDetail() {
 	}
+	public static boolean CheckMAC(String mac) {
+		if (StringUtil.IsNullOrEmpty(mac)) {
+			return false;
+		}
+		else {
+			String[] macList = mac.split("-");
+			int iLen = macList.length;
+			if (iLen != 6) {
+				return false;
+			}
+			else {
+				try {
+					for (int i = 0; i < iLen; ++i) {
+						int iValue = Integer.parseInt(macList[i], 16);
+						if (iValue < 0 || iValue > 255) {
+							return false;
+						}
+					}
+					return true;
+				}
+				catch (Exception var5) {
+					return false;
+				}
+			}
+		}
+	}
+	public static boolean CheckIP(String ip) {
+		if (StringUtil.IsNullOrEmpty(ip)) {
+			return false;
+		}
+		else {
+			String[] ipList = ip.split("\\.");
+			int iLen = ipList.length;
+			if (iLen != 4) {
+				return false;
+			}
+			else {
+				try {
+					for (int i = 0; i < iLen; ++i) {
+						int iValue = Integer.parseInt(ipList[i]);
+						if (iValue < 0 || iValue > 255) {
+							return false;
+						}
+					}
+					return true;
+				}
+				catch (Exception var5) {
+					return false;
+				}
+			}
+		}
+	}
 	public int GetDataLen() {
 		return 137;
 	}
@@ -158,64 +210,12 @@ public class TCPDetail implements INData {
 			this.mMAC = mac;
 		}
 	}
-	public static boolean CheckMAC(String mac) {
-		if (StringUtil.IsNullOrEmpty(mac)) {
-			return false;
-		}
-		else {
-			String[] macList = mac.split("-");
-			int iLen = macList.length;
-			if (iLen != 6) {
-				return false;
-			}
-			else {
-				try {
-					for (int i = 0; i < iLen; ++i) {
-						int iValue = Integer.parseInt(macList[i], 16);
-						if (iValue < 0 || iValue > 255) {
-							return false;
-						}
-					}
-					return true;
-				}
-				catch (Exception var5) {
-					return false;
-				}
-			}
-		}
-	}
 	public String GetMAC() {
 		return this.mMAC;
 	}
 	public void SetIP(String ip) {
 		if (CheckIP(ip)) {
 			this.mIP = ip;
-		}
-	}
-	public static boolean CheckIP(String ip) {
-		if (StringUtil.IsNullOrEmpty(ip)) {
-			return false;
-		}
-		else {
-			String[] ipList = ip.split("\\.");
-			int iLen = ipList.length;
-			if (iLen != 4) {
-				return false;
-			}
-			else {
-				try {
-					for (int i = 0; i < iLen; ++i) {
-						int iValue = Integer.parseInt(ipList[i]);
-						if (iValue < 0 || iValue > 255) {
-							return false;
-						}
-					}
-					return true;
-				}
-				catch (Exception var5) {
-					return false;
-				}
-			}
 		}
 	}
 	public String GetIP() {

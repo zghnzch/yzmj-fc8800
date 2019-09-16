@@ -4,7 +4,6 @@
 //
 package Net.PC15.FC8800.Packet;
 import Net.PC15.Packet.INPacketDecompile;
-import Net.PC15.Packet.INPacketModel;
 import Net.PC15.Util.ByteUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -79,7 +78,7 @@ public class FC8800Decompile implements INPacketDecompile {
 		return false;
 	}
 	private void push(short value) {
-		this._Checksum += (long) value;
+		this._Checksum += value;
 		this._Buf.writeByte(value);
 	}
 	private boolean DecompileStep(short value) {
@@ -133,17 +132,17 @@ public class FC8800Decompile implements INPacketDecompile {
 				}
 				break;
 			case 3:
-				this._Checksum += (long) value;
+				this._Checksum += value;
 				this._Packet.SetCmdType(value);
 				++this._Step;
 				break;
 			case 4:
-				this._Checksum += (long) value;
+				this._Checksum += value;
 				this._Packet.SetCmdIndex(value);
 				++this._Step;
 				break;
 			case 5:
-				this._Checksum += (long) value;
+				this._Checksum += value;
 				this._Packet.SetCmdPar(value);
 				++this._Step;
 				break;
@@ -155,7 +154,7 @@ public class FC8800Decompile implements INPacketDecompile {
 					}
 					this._DataLen = (int) this._Buf.readUnsignedInt();
 					if (this._DataLen <= 2046 && this._DataLen >= 0) {
-						this._Packet.SetDataLen((long) this._DataLen);
+						this._Packet.SetDataLen(this._DataLen);
 						this._Buf.clear();
 						++this._Step;
 						if (this._DataLen != 0) {
@@ -174,7 +173,7 @@ public class FC8800Decompile implements INPacketDecompile {
 				break;
 			case 7:
 				if (this._DataBuf.readableBytes() != this._DataLen) {
-					this._Checksum += (long) value;
+					this._Checksum += value;
 					this._DataBuf.writeByte(value);
 					if (this._DataBuf.readableBytes() == this._DataLen) {
 						this._Packet.SetDatabuff(this._DataBuf);
@@ -189,10 +188,7 @@ public class FC8800Decompile implements INPacketDecompile {
 				++this._Step;
 				this._Checksum &= 255L;
 				this._Packet.SetPacketCheck(value);
-				if (this._Checksum == (long) value) {
-					return true;
-				}
-				return false;
+				return this._Checksum == (long) value;
 			default:
 				this.ClearBuf();
 		}

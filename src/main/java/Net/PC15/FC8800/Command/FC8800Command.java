@@ -10,16 +10,16 @@ import Net.PC15.Packet.INPacketModel;
 import Net.PC15.Util.StringUtil;
 import io.netty.buffer.ByteBuf;
 public abstract class FC8800Command extends AbstractCommand {
-	public static String NULLPassword = "FFFFFFFF";
 	public static final short DoorMax = 4;
+	public static String NULLPassword = "FFFFFFFF";
 	public FC8800Command() {
 		this._Decompile = new FC8800Decompile();
 	}
 	protected void CreatePacket(int iCmdType, int iCmdIndex) {
-		this.CreatePacket(iCmdType, iCmdIndex, 0, 0, (ByteBuf) null);
+		this.CreatePacket(iCmdType, iCmdIndex, 0, 0, null);
 	}
 	protected void CreatePacket(int iCmdType, int iCmdIndex, int iCmdPar) {
-		this.CreatePacket(iCmdType, iCmdIndex, iCmdPar, 0, (ByteBuf) null);
+		this.CreatePacket(iCmdType, iCmdIndex, iCmdPar, 0, null);
 	}
 	protected void CreatePacket(int iCmdType, int iCmdIndex, int iCmdPar, int iDataLen, ByteBuf Databuf) {
 		FC8800Identity identity = (FC8800Identity) this._Parameter.getCommandDetail().Identity;
@@ -35,7 +35,7 @@ public abstract class FC8800Command extends AbstractCommand {
 		this.CommandReady();
 	}
 	@Override
-    protected boolean CommandStep(INConnectorEvent oEvent, INPacketModel model) {
+	protected boolean CommandStep(INConnectorEvent oEvent, INPacketModel model) {
 		FC8800PacketModel fcmodel = (FC8800PacketModel) model;
 		FC8800PacketModel fcSendModel = (FC8800PacketModel) this._Packet.GetPacket();
 		if (fcmodel.GetCode() != fcSendModel.GetCode()) {
