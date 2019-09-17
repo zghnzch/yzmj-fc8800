@@ -48,7 +48,7 @@ public class TCPServer_ClientConnector extends AbstractConnector {
 		}
 		catch (CloneNotSupportedException var2) {
 			// Logger.getLogger(TCPServer_ClientConnector.class.getName()).log(Level.SEVERE, (String) null, var2);
-			Logger.getRootLogger().info(var2);
+			Logger.getRootLogger().info("err:"+var2);
 			return null;
 		}
 	}
@@ -83,8 +83,10 @@ public class TCPServer_ClientConnector extends AbstractConnector {
 								this._CommandList.poll();
 								this._ActivityCommand = null;
 							}
+						default:
 					}
 				}
+			default:
 		}
 	}
 	public void Close() {

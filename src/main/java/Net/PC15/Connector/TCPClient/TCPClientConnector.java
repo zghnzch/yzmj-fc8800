@@ -7,7 +7,10 @@ import Net.PC15.Connector.E_ConnectorType;
 import Net.PC15.Packet.INPacket;
 import fcardutils.stringutil.LogUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleStateEvent;
 
 import java.util.Calendar;
@@ -109,15 +112,12 @@ public class TCPClientConnector extends AbstractConnector {
 							ByteBuf sendBuf = this._ClientChannel.alloc().buffer(packetBuf.readableBytes());
 							sendBuf.writeBytes(packetBuf);
 							packetBuf.resetReaderIndex();
-							/* ============================== */
-							//通过ByteBuf的readableBytes方法可以获取缓冲区可读的字节数，
-							//根据可读的字节数创建byte数组
-							byte[] bytes = new byte[sendBuf.readableBytes()];
-							//通过ByteBuf的readBytes方法将缓冲区中的字节数组复制到新建的byte数组中
-							sendBuf.readBytes(bytes);
-							myLog.info("TCPClient:" + LogUtil.Bytes2HexString(bytes));
-							/* ============================== */
 							this._WriteFuture = this._ClientChannel.writeAndFlush(sendBuf);
+							/* ============================== */
+							myLog.info("TCPClient:");
+							myLog.info(LogUtil.getBytesFromByteBuf2(sendBuf));
+							myLog.info(LogUtil.bytes2HexString(LogUtil.getBytesFromByteBuf2(sendBuf)));
+							/* ============================== */
 							this._ActivityCommand.SendCommand(this._Event);
 							this._WriteFuture.addListener(new WriteCallback(this));
 							break;
@@ -200,7 +200,7 @@ public class TCPClientConnector extends AbstractConnector {
 	}
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		if (!this._isRelease) {
-        }
+		}
 	}
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		if (!this._isRelease) {

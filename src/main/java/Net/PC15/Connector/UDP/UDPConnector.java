@@ -13,6 +13,9 @@ import io.netty.handler.timeout.IdleStateEvent;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+/**
+ * @author yz
+ */
 public class UDPConnector extends AbstractConnector {
 	private UDPAllocator _UDPAllocator;
 	private UDPDetail _RemoteDetail;
@@ -24,6 +27,7 @@ public class UDPConnector extends AbstractConnector {
 		this._RemoteDetail = detail.clone();
 		this._UDPAllocator = allocator;
 	}
+	@Override
 	protected ConnectorDetail GetConnectorDetail() {
 		try {
 			return this._RemoteDetail.clone();
@@ -33,6 +37,7 @@ public class UDPConnector extends AbstractConnector {
 			return null;
 		}
 	}
+	@Override
 	public E_ConnectorType GetConnectorType() {
 		return E_ConnectorType.OnTCPClient;
 	}
@@ -78,6 +83,7 @@ public class UDPConnector extends AbstractConnector {
 								this._CommandList.poll();
 								this._ActivityCommand = null;
 							}
+						default:
 					}
 				}
 				else {
@@ -88,6 +94,7 @@ public class UDPConnector extends AbstractConnector {
 					this._Status = E_ConnectorStatus.OnClosing;
 					this._UDPChannel.close();
 				}
+			default:
 		}
 	}
 	private void UDPBind() {
@@ -190,6 +197,7 @@ public class UDPConnector extends AbstractConnector {
 		ctx.close();
 		this._Status = E_ConnectorStatus.OnError;
 	}
+	@Override
 	protected void Release0() {
 		try {
 			if (this._Handler != null) {
@@ -222,6 +230,7 @@ public class UDPConnector extends AbstractConnector {
 		public connectCallback(UDPConnector udp) {
 			this._UDP = udp;
 		}
+		@Override
 		public void operationComplete(ChannelFuture future) throws Exception {
 			if (this._UDP != null) {
 				if (!UDPConnector.this._isRelease) {
@@ -250,6 +259,7 @@ public class UDPConnector extends AbstractConnector {
 		public WriteCallback(UDPConnector client) {
 			this._Client = client;
 		}
+		@Override
 		public void operationComplete(ChannelFuture f) throws Exception {
 			if (!UDPConnector.this._isRelease) {
 				if (f.isDone()) {

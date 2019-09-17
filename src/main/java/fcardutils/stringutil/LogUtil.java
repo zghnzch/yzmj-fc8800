@@ -1,4 +1,7 @@
 package fcardutils.stringutil;
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,15 +42,55 @@ public class LogUtil {
 		}
 		return i;
 	}
-	public static String Bytes2HexString(byte[] b) {
-		String ret = "";
-		for (int i = 0; i < b.length; i++) {
-			String hex = Integer.toHexString(b[i] & 0xFF);
+	public static String bytes2HexString(@NotNull byte[] b) {
+		StringBuilder ret = new StringBuilder();
+		for (byte value : b) {
+			String hex = Integer.toHexString(value & 0xFF);
 			if (hex.length() == 1) {
 				hex = '0' + hex;
 			}
-			ret += hex.toUpperCase();
+			ret.append(hex.toUpperCase());
 		}
-		return ret;
+		return ret.toString();
+	}
+	/**
+	 * convertByteBufToString
+	 * @param buf buf
+	 * @return String
+	 */
+	public static String convertByteBufToString(@NotNull ByteBuf buf) {
+		String str;
+		// 处理堆缓冲区
+		if (buf.hasArray()) {
+			str = new String(buf.array(), buf.arrayOffset() + buf.readerIndex(), buf.readableBytes());
+		}
+		// 处理直接缓冲区以及复合缓冲区
+		else {
+			byte[] bytes = new byte[buf.readableBytes()];
+			buf.getBytes(buf.readerIndex(), bytes);
+			str = new String(bytes, 0, buf.readableBytes());
+		}
+		return str;
+	}
+	public static byte[] getBytesFromByteBuf(ByteBuf buf) {
+		byte[] bytes;
+		int offset;
+		int length = buf.readableBytes();
+		if (buf.hasArray()) {
+			bytes = buf.array();
+			offset = buf.arrayOffset();
+		}
+		else {
+			bytes = new byte[length];
+			buf.getBytes(buf.readerIndex(), bytes);
+			offset = 0;
+		}
+		return bytes;
+	}
+	public static byte[] getBytesFromByteBuf2(ByteBuf buf){
+		byte[] bytes = new byte[buf.readableBytes()];
+		int readerIndex = buf.readerIndex();
+		buf.getBytes(readerIndex, bytes);
+		return bytes;
 	}
 }
