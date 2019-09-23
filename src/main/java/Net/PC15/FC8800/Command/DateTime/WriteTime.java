@@ -11,6 +11,7 @@ public class WriteTime extends FC8800Command {
 	public WriteTime(CommandParameter par) {
 		this._Parameter = par;
 	}
+	@Override
 	public INPacket GetPacket() {
 		byte[] Datebuf = new byte[7];
 		Calendar t = Calendar.getInstance();

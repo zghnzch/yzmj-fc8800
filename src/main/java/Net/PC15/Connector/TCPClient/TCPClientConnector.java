@@ -5,8 +5,8 @@ import Net.PC15.Connector.ConnectorDetail;
 import Net.PC15.Connector.E_ConnectorStatus;
 import Net.PC15.Connector.E_ConnectorType;
 import Net.PC15.Packet.INPacket;
-import fcardutils.stringutil.LogUtil;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -114,9 +114,12 @@ public class TCPClientConnector extends AbstractConnector {
 							packetBuf.resetReaderIndex();
 							this._WriteFuture = this._ClientChannel.writeAndFlush(sendBuf);
 							/* ============================== */
-							myLog.info("TCPClient:");
-							myLog.info(LogUtil.getBytesFromByteBuf2(sendBuf));
-							myLog.info(LogUtil.bytes2HexString(LogUtil.getBytesFromByteBuf2(sendBuf)));
+							//							byte[] receiveBytes = LogUtil.getBytesFromByteBuf2(sendBuf);
+							//							String receiveStr = LogUtil.bytes2HexString(receiveBytes);
+							//							myLog.info("发:" + receiveBytes + " " + receiveStr + "  ArraysToString " + Arrays.toString(receiveBytes));
+							/* ============================== */
+							String receiveStr2 = ByteBufUtil.hexDump(sendBuf).toUpperCase();
+							myLog.info("发2:" + receiveStr2);
 							/* ============================== */
 							this._ActivityCommand.SendCommand(this._Event);
 							this._WriteFuture.addListener(new WriteCallback(this));

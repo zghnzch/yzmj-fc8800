@@ -1,7 +1,11 @@
 package Net.PC15.Connector;
-import Net.PC15.Command.*;
+import Net.PC15.Command.INCommand;
+import Net.PC15.Command.INCommandRuntime;
+import Net.PC15.Command.INIdentity;
+import Net.PC15.Command.INWatchResponse;
 import Net.PC15.Packet.PacketDecompileAllocator;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 
 import java.util.Calendar;
 import java.util.Iterator;
@@ -11,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author zch
  */
 public abstract class AbstractConnector implements INConnector {
+	private final static org.apache.log4j.Logger myLog = org.apache.log4j.Logger.getRootLogger();
 	protected ConcurrentLinkedQueue _CommandList = new ConcurrentLinkedQueue();
 	protected ConcurrentHashMap _DecompileList = new ConcurrentHashMap();
 	protected boolean _IsForcibly = false;
@@ -196,6 +201,16 @@ public abstract class AbstractConnector implements INConnector {
 			while (var2.hasNext()) {
 				INWatchResponse value = (INWatchResponse) var2.next();
 				value.CheckResponse(this.GetConnectorDetail(), this._Event, msg);
+				/* ============================== */
+				//				byte[] receiveBytes = LogUtil.getBytesFromByteBuf2(msg);
+				//				String receiveStr = LogUtil.bytes2HexString(receiveBytes);
+				//				myLog.info("收:" + receiveBytes + " " + receiveStr + "  ArraysToString " + Arrays.toString(receiveBytes));
+				//				String receiveStr2 = ByteBufUtil.hexDump(msg).toUpperCase();
+				//				myLog.info("收2:" + receiveBytes + " " + receiveStr2 + "  ArraysToString " + Arrays.toString(receiveBytes));
+				/* ============================== */
+				String receiveStr2 = ByteBufUtil.hexDump(msg).toUpperCase();
+				myLog.info("收2:" + receiveStr2);
+				/* ============================== */
 			}
 		}
 	}

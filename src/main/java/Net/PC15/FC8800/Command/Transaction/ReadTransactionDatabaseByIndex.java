@@ -118,6 +118,7 @@ public class ReadTransactionDatabaseByIndex extends FC8800Command {
 			buf.release();
 		}
 	}
+	@Override
 	protected void CommandOver_ReSend() {
 		this.ClearBuf();
 		this._ProcessMax = this.mQuantity;

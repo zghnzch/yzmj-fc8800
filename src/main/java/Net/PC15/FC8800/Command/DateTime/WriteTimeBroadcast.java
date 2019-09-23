@@ -12,6 +12,7 @@ public class WriteTimeBroadcast extends FC8800Command {
 		this._Parameter = par;
 		this._IsWaitResponse = true;
 	}
+	@Override
 	public INPacket GetPacket() {
 		byte[] Datebuf = new byte[7];
 		Calendar t = Calendar.getInstance();

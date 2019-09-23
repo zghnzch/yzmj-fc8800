@@ -145,6 +145,7 @@ public class ReadCardDataBase extends FC8800Command {
 		}
 		result.DataBaseSize = CardList.size();
 	}
+	@Override
 	protected void CommandOver_ReSend() {
 		this.ClearBuf();
 		this._ProcessMax = this.mRecordCardSize;
