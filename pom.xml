@@ -181,14 +181,26 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.45</version>
 		</dependency>
+		<!--		<dependency>-->
+		<!--			<groupId>io.netty</groupId>-->
+		<!--			<artifactId>netty-all</artifactId>-->
+		<!--			<version>4.1.36.Final</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>io.netty</groupId>-->
+		<!--			<artifactId>netty-all</artifactId>-->
+		<!--			<version>[4.1.42,)</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>io.netty</groupId>-->
+		<!--			<artifactId>netty-all</artifactId>-->
+		<!--			<version>4.1.42.Final</version>-->
+		<!--		</dependency>-->
 		<dependency>
 			<groupId>io.netty</groupId>
-			<!-- Use 'netty-all' for 4.0 or above  更新netty版本 -->
 			<artifactId>netty-all</artifactId>
-			<version>4.1.36.Final</version>
-			<scope>compile</scope>
+			<version>4.1.43.Final</version>
 		</dependency>
-		<!--    netty    -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
